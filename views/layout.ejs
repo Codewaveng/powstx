@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | POWtfolio</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-brand">
+        <a href="/">
+          <i class="fas fa-certificate"></i>
+          <span>POWtfolio</span>
+        </a>
+      </div>
+      <div class="nav-links">
+        <% if (user) { %>
+          <a href="/dashboard" class="nav-link">
+            <i class="fas fa-chart-line"></i>
+            Dashboard
+          </a>
+          <a href="/<%= user.username %>" class="nav-link">
+            <i class="fas fa-user"></i>
+            My Portfolio
+          </a>
+          <a href="/auth/logout" class="nav-link">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+          </a>
+        <% } else { %>
+          <a href="/auth/login" class="nav-link">
+            <i class="fas fa-sign-in-alt"></i>
+            Login
+          </a>
+          <a href="/auth/register" class="btn-primary">
+            <i class="fas fa-user-plus"></i>
+            Get Started
+          </a>
+        <% } %>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <%- body %>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 POWtfolio. Prove Your Work.</p>
+    </div>
+  </footer>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <meta name="description" content="<%= profileUser.profile.bio || 'Check out ' + profileUser.username + ' on POWtfolio' %>">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<%
+const accent = profileUser.accentColor || 'purple';
+const accentClass = 'pa-' + accent;
+const catLabels = skillCategoryLabels || {};
+const catLabel  = catLabels[profileUser.skillCategory] || 'Creator';
+
+function powIcon(type) {
+  const m = {
+    code:'fa-code', design:'fa-palette', marketing:'fa-bullhorn',
+    content:'fa-pen-nib', video:'fa-video', photography:'fa-camera',
+    music:'fa-music', research:'fa-flask', dao:'fa-users',
+    community:'fa-comments', project:'fa-project-diagram',
+    writing:'fa-file-alt', other:'fa-briefcase',
+    github:'fa-code', article:'fa-file-alt'
+  };
+  return m[type] || 'fa-briefcase';
+}
+%>
+<body class="public-profile <%= accentClass %>">
+
+  <!-- ====== BANNER ====== -->
+  <div class="profile-banner">
+    <div class="profile-banner-actions">
+      <% if (isOwner) { %>
+        <a href="/dashboard/profile" class="profile-banner-btn">
+          <i class="fas fa-pen"></i> Edit Profile
+        </a>
+      <% } else { %>
+        <a href="/auth/register" class="profile-banner-btn">
+          <i class="fas fa-bolt"></i> Create Yours Free
+        </a>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- ====== MAIN CARD ====== -->
+  <div class="profile-content">
+    <div class="profile-main-card">
+
+      <!-- Avatar -->
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar-inner">
+          <% if (profileUser.profile.avatar) { %>
+            <img src="<%= profileUser.profile.avatar %>" alt="<%= profileUser.username %>">
+          <% } else { %>
+            <i class="fas fa-user"></i>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Name & handle -->
+      <h1 class="profile-name">
+        <%= profileUser.profile.fullName || profileUser.username %>
+      </h1>
+      <p class="profile-handle">@<%= profileUser.username %></p>
+
+      <!-- Bio -->
+      <% if (profileUser.profile.bio) { %>
+        <p class="profile-bio"><%= profileUser.profile.bio %></p>
+      <% } %>
+
+      <!-- Badges row -->
+      <div class="profile-pills">
+        <% if (profileUser.skillCategory && profileUser.skillCategory !== 'other') { %>
+          <span class="skill-category-pill">
+            <%= catLabel %>
+          </span>
+        <% } %>
+        <% if (profileUser.profile.location) { %>
+          <span class="badge badge-default">
+            <i class="fas fa-map-marker-alt"></i> <%= profileUser.profile.location %>
+          </span>
+        <% } %>
+        <% if (profileUser.zeroAuthDAO && profileUser.zeroAuthDAO.address) { %>
+          <span class="dao-pill">
+            <i class="fas fa-shield-halved"></i>
+            Zero Auth DAO
+            <% if (profileUser.zeroAuthDAO.score) { %>
+              &middot; <%= profileUser.zeroAuthDAO.score %> pts
+            <% } %>
+            <% if (profileUser.zeroAuthDAO.bnsName) { %>
+              &middot; <%= profileUser.zeroAuthDAO.bnsName %>
+            <% } %>
+          </span>
+        <% } %>
+      </div>
+
+      <hr class="profile-divider">
+
+      <!-- Stats -->
+      <div class="profile-stats-strip">
+        <div class="pstat">
+          <span class="pstat-num"><%= stats.totalPOWs %></span>
+          <span class="pstat-lbl">POWs</span>
+        </div>
+        <div class="pstat">
+          <span class="pstat-num"><%= stats.verifiedPOWs %></span>
+          <span class="pstat-lbl">Verified</span>
+        </div>
+        <div class="pstat">
+          <span class="pstat-num"><%= stats.totalBadges %></span>
+          <span class="pstat-lbl">Badges</span>
+        </div>
+        <div class="pstat">
+          <span class="pstat-num"><%= stats.reputation %></span>
+          <span class="pstat-lbl">Reputation</span>
+        </div>
+      </div>
+
+      <!-- Share strip -->
+      <div class="profile-share-strip">
+        <div class="views-badge">
+          <i class="fas fa-eye"></i>
+          <%= (profileUser.profileViews || 0).toLocaleString() %> profile views
+        </div>
+        <button class="btn btn-sm btn-secondary"
+          data-copy="<%= process.env.BASE_URL || 'http://localhost:3000' %>/<%= profileUser.username %>">
+          <i class="fas fa-copy"></i> Copy Link
+        </button>
+      </div>
+    </div>
+
+    <!-- ====== SOCIAL LINKS ====== -->
+    <%
+    const socials = [
+      { key: 'github',    cls: 'soc-github',    icon: 'fab fa-github',        label: 'GitHub',    url: 'https://github.com/' },
+      { key: 'twitter',   cls: 'soc-x',         icon: 'fab fa-x-twitter',     label: 'X',         url: 'https://x.com/' },
+      { key: 'linkedin',  cls: 'soc-linkedin',  icon: 'fab fa-linkedin',      label: 'LinkedIn',  url: 'https://linkedin.com/in/' },
+      { key: 'instagram', cls: 'soc-instagram', icon: 'fab fa-instagram',     label: 'Instagram', url: 'https://instagram.com/' },
+      { key: 'facebook',  cls: 'soc-facebook',  icon: 'fab fa-facebook',      label: 'Facebook',  url: 'https://facebook.com/' },
+      { key: 'youtube',   cls: 'soc-youtube',   icon: 'fab fa-youtube',       label: 'YouTube',   url: 'https://youtube.com/@' },
+      { key: 'tiktok',    cls: 'soc-tiktok',    icon: 'fab fa-tiktok',        label: 'TikTok',    url: 'https://tiktok.com/@' },
+      { key: 'discord',   cls: 'soc-discord',   icon: 'fab fa-discord',       label: 'Discord',   url: '' },
+      { key: 'telegram',  cls: 'soc-telegram',  icon: 'fab fa-telegram',      label: 'Telegram',  url: 'https://t.me/' },
+      { key: 'behance',   cls: 'soc-behance',   icon: 'fab fa-behance',       label: 'Behance',   url: 'https://behance.net/' },
+      { key: 'dribbble',  cls: 'soc-dribbble',  icon: 'fab fa-dribbble',      label: 'Dribbble',  url: 'https://dribbble.com/' },
+      { key: 'farcaster', cls: 'soc-farcaster', icon: 'fas fa-circle-dot',    label: 'Farcaster', url: 'https://warpcast.com/' }
+    ];
+    const activeSocials = socials.filter(s => profileUser.profile[s.key]);
+    %>
+    <% if (activeSocials.length > 0) { %>
+      <div class="social-section">
+        <h3>Connect</h3>
+        <div class="social-icons-row">
+          <% activeSocials.forEach(s => {
+            let href = profileUser.profile[s.key];
+            // If it doesn't start with http, prepend base URL
+            if (!href.startsWith('http') && s.url) href = s.url + profileUser.profile[s.key];
+          %>
+            <a href="<%= href %>" target="_blank" rel="noopener noreferrer"
+               class="soc-btn <%= s.cls %>">
+              <i class="<%= s.icon %>"></i> <%= s.label %>
+            </a>
+          <% }); %>
+          <% if (profileUser.profile.website) { %>
+            <a href="<%= profileUser.profile.website %>" target="_blank" rel="noopener noreferrer"
+               class="soc-btn soc-website">
+              <i class="fas fa-globe"></i> Website
+            </a>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- ====== CUSTOM LINKS ====== -->
+    <% if (profileUser.customLinks && profileUser.customLinks.length > 0) { %>
+      <div class="custom-links-section">
+        <h3>Links</h3>
+        <div class="custom-link-list">
+          <% profileUser.customLinks.forEach(link => { %>
+            <a href="<%= link.url %>" target="_blank" rel="noopener noreferrer" class="custom-link-item">
+              <div class="clink-left">
+                <div class="clink-icon">
+                  <i class="fas fa-<%= link.icon || 'link' %>"></i>
+                </div>
+                <span><%= link.title %></span>
+              </div>
+              <i class="fas fa-arrow-right" style="color:var(--gray-400);font-size:0.85rem;"></i>
+            </a>
+          <% }); %>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- ====== PROOF OF WORK ====== -->
+    <% if (pows.length > 0) { %>
+      <div class="pow-public-section">
+        <h2>
+          <i class="fas fa-clipboard-check" style="color:var(--purple);"></i>
+          Proof of Work
+          <span style="font-size:0.85rem;font-weight:500;color:var(--gray-500);">(<%= pows.length %>)</span>
+        </h2>
+        <div class="pow-cards">
+          <% pows.forEach(pow => {
+            const icon = powIcon(pow.type);
+            const typeInfo = (powTypeLabels || {})[pow.type] || { label: pow.type, icon: 'fa-briefcase' };
+          %>
+            <div class="pow-pub-card">
+              <% if (pow.featuredImage) { %>
+                <div class="pow-featured-img">
+                  <img src="<%= pow.featuredImage %>" alt="<%= pow.title %>">
+                </div>
+              <% } %>
+              <div class="pow-pub-top">
+                <div class="pow-pub-type">
+                  <i class="fas <%= icon %>"></i>
+                  <%= typeInfo.label || pow.type %>
+                </div>
+                <% if (pow.verification.status !== 'self-reported') { %>
+                  <span class="verified-chip">
+                    <i class="fas fa-check-circle"></i>
+                    <%= pow.verification.status === 'platform-verified' ? 'Verified' : 'Project Verified' %>
+                  </span>
+                <% } %>
+              </div>
+
+              <h3 class="pow-pub-title"><%= pow.title %></h3>
+              <p class="pow-pub-desc"><%= pow.description %></p>
+
+              <% if (pow.skills && pow.skills.length > 0) { %>
+                <div class="pow-pub-skills">
+                  <% pow.skills.forEach(skill => { %>
+                    <span class="skill-tag"><%= skill %></span>
+                  <% }); %>
+                </div>
+              <% } %>
+
+              <div class="pow-pub-bottom">
+                <span class="pow-pub-date">
+                  <i class="far fa-calendar-alt"></i>
+                  <%= new Date(pow.startDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) %>
+                  <% if (pow.endDate) { %> – <%= new Date(pow.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) %><% } %>
+                </span>
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                  <% if (pow.proofLink) { %>
+                    <a href="<%= pow.proofLink %>" target="_blank" rel="noopener" class="pow-proof-link">
+                      <i class="fas fa-external-link-alt"></i> View Proof
+                    </a>
+                  <% } %>
+                  <% if (pow.fileUrl) { %>
+                    <a href="<%= pow.fileUrl %>" target="_blank" rel="noopener" class="pow-proof-file">
+                      <i class="fas fa-file-alt"></i> View File
+                    </a>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    <% } else if (isOwner) { %>
+      <div class="pow-public-section">
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-plus-circle"></i></div>
+          <h3>No POWs yet</h3>
+          <p>Add your first proof of work to start building your portfolio</p>
+          <a href="/pow/add" class="btn btn-primary"><i class="fas fa-plus"></i> Add First POW</a>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- ====== PROFILE FOOTER ====== -->
+    <div class="profile-footer-bar">
+      <p>Powered by</p>
+      <a href="/" class="create-yours-link">
+        <i class="fas fa-bolt"></i> Create your POWtfolio — Free
+      </a>
+    </div>
+  </div>
+
+<script src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — POWtfolio</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card">
+
+    <a href="/" class="auth-logo">
+      <div class="brand-icon"><i class="fas fa-bolt"></i></div>
+      <span>POWtfolio</span>
+    </a>
+
+    <h1 class="auth-title">Welcome back</h1>
+    <p class="auth-subtitle">Log in to manage your profile</p>
+
+    <% if (error) { %>
+      <div class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i>
+        <%= error %>
+      </div>
+    <% } %>
+
+    <form method="POST" action="/auth/login">
+      <div class="form-group">
+        <label class="form-label" for="email">
+          <i class="fas fa-envelope"></i> Email address
+        </label>
+        <input
+          type="email" id="email" name="email"
+          class="form-input" placeholder="you@example.com" required autocomplete="email"
+        >
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">
+          <i class="fas fa-lock"></i> Password
+        </label>
+        <input
+          type="password" id="password" name="password"
+          class="form-input" placeholder="••••••••" required autocomplete="current-password"
+        >
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top:0.5rem;">
+        <i class="fas fa-sign-in-alt"></i> Log In
+      </button>
+    </form>
+
+    <div class="auth-footer-text">
+      Don't have an account? <a href="/auth/register">Create one free</a>
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>

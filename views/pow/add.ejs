@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Proof of Work — POWtfolio</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<%- include('../partials/nav') %>
+
+<div class="app-layout">
+  <div class="container" style="max-width:760px;">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title"><i class="fas fa-plus-circle" style="color:var(--purple);"></i> Add Proof of Work</h1>
+        <p class="page-subtitle">Document your work with verifiable evidence</p>
+      </div>
+      <a href="/dashboard" class="btn btn-secondary btn-sm">
+        <i class="fas fa-arrow-left"></i> Back
+      </a>
+    </div>
+
+    <% if (error) { %>
+      <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
+    <% } %>
+
+    <form method="POST" action="/pow/add" enctype="multipart/form-data" class="pow-form-card">
+
+      <!-- Featured Image -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="fas fa-image"></i> Featured Image
+          <span style="color:var(--gray-400);font-weight:400;font-size:0.8rem;">(optional — shown as card cover)</span>
+        </label>
+        <div class="featured-img-drop" id="featuredImgDrop">
+          <input type="file" name="featuredImage" id="featuredImageFile" accept="image/*">
+          <div class="featured-img-placeholder" id="featuredImgPlaceholder">
+            <i class="fas fa-image"></i>
+            <span>Click or drag to upload a cover image</span>
+            <small>JPG, PNG, WEBP &middot; Max 10 MB &middot; 16:9 recommended</small>
+          </div>
+          <img class="featured-img-preview" id="featuredImgPreview" style="display:none;" alt="Preview">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="title">
+          <i class="fas fa-heading"></i> Title <span style="color:var(--rose);">*</span>
+        </label>
+        <input type="text" id="title" name="title" class="form-input"
+          placeholder="What did you build, design, create, or achieve?" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="description">
+          <i class="fas fa-align-left"></i> Description <span style="color:var(--rose);">*</span>
+        </label>
+        <textarea id="description" name="description" class="form-textarea" rows="5" required
+          placeholder="Describe what you did, the tools you used, challenges you solved, and the impact or result..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="type">
+            <i class="fas fa-tag"></i> Category <span style="color:var(--rose);">*</span>
+          </label>
+          <select id="type" name="type" class="form-select" required>
+            <option value="" disabled selected>Pick a category</option>
+            <option value="code">Code / Development</option>
+            <option value="design">Design</option>
+            <option value="marketing">Marketing</option>
+            <option value="content">Content Creation</option>
+            <option value="writing">Writing / Blog</option>
+            <option value="video">Video Production</option>
+            <option value="photography">Photography</option>
+            <option value="music">Music</option>
+            <option value="research">Research</option>
+            <option value="dao">DAO Contribution</option>
+            <option value="community">Community Building</option>
+            <option value="project">Project Management</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="proofLink">
+            <i class="fas fa-link"></i> Proof Link (optional)
+          </label>
+          <input type="url" id="proofLink" name="proofLink" class="form-input"
+            placeholder="https://github.com/... or any URL">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="fas fa-file-upload"></i> Upload Proof File (optional)
+        </label>
+        <div class="file-drop" id="fileDrop">
+          <input type="file" name="proofFile" id="proofFile" accept="image/*,.pdf">
+          <div class="file-drop-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+          <div class="file-drop-text">
+            <strong>Click to upload</strong> or drag and drop here<br>
+            <small>Images (JPG, PNG, GIF) or PDF · Max 10 MB</small>
+          </div>
+          <div class="file-chosen" id="fileChosen">
+            <i class="fas fa-file-check"></i>
+            <span class="file-chosen-name"></span>
+          </div>
+        </div>
+        <p class="form-hint">Upload screenshots, certificates, PDFs, or any document that proves your work.</p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="skillsInput">
+          <i class="fas fa-tags"></i> Skills Used (optional)
+        </label>
+        <input type="text" id="skillsInput" name="skills" class="form-input"
+          placeholder="React, Figma, SEO, Photoshop... (comma separated)">
+        <p class="form-hint">Separate skills with commas.</p>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="startDate">
+            <i class="far fa-calendar"></i> Start Date <span style="color:var(--rose);">*</span>
+          </label>
+          <input type="date" id="startDate" name="startDate" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="endDate">
+            <i class="far fa-calendar-check"></i> End Date <span style="color:var(--gray-400);">(leave blank if ongoing)</span>
+          </label>
+          <input type="date" id="endDate" name="endDate" class="form-input">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-check">
+          <input type="checkbox" name="isPublic" checked>
+          <span class="form-check-label">
+            <i class="fas fa-eye" style="color:var(--purple);"></i>
+            Show this POW publicly on my profile
+          </span>
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-check"></i> Save POW
+        </button>
+        <a href="/dashboard" class="btn btn-secondary">
+          <i class="fas fa-times"></i> Cancel
+        </a>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script src="/js/main.js"></script>
+</body>
+</html>

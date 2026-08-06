@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile Settings — POWtfolio</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<%- include('../partials/nav') %>
+
+<div class="app-layout">
+  <div class="container" style="max-width:860px;">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Profile Settings</h1>
+        <p class="page-subtitle">Customize your public POWtfolio page</p>
+      </div>
+      <a href="/<%= user.username %>" target="_blank" class="btn btn-outline btn-sm">
+        <i class="fas fa-eye"></i> Preview Profile
+      </a>
+    </div>
+
+    <% if (success) { %>
+      <div class="alert alert-success"><i class="fas fa-check-circle"></i> <%= success %></div>
+    <% } %>
+    <% if (error) { %>
+      <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
+    <% } %>
+
+    <form method="POST" action="/dashboard/profile" enctype="multipart/form-data">
+
+      <!-- ── Basic Info ── -->
+      <div class="settings-card">
+        <div class="settings-card-head">
+          <i class="fas fa-user"></i>
+          <h2>Basic Information</h2>
+        </div>
+        <div class="settings-card-body">
+          <!-- Avatar Upload -->
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-image"></i> Profile Picture</label>
+            <div class="avatar-upload-row">
+              <div class="avatar-preview-wrap">
+                <% if (user.profile.avatar) { %>
+                  <img src="<%= user.profile.avatar %>" alt="Avatar" class="avatar-preview-img" id="avatarPreview">
+                <% } else { %>
+                  <div class="avatar-preview-placeholder" id="avatarPreview">
+                    <i class="fas fa-user"></i>
+                  </div>
+                <% } %>
+              </div>
+              <div class="avatar-upload-info">
+                <label class="btn btn-secondary btn-sm" for="avatarFile" style="cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;">
+                  <i class="fas fa-upload"></i> Upload Photo
+                </label>
+                <input type="file" id="avatarFile" name="avatar" accept="image/*" style="display:none;">
+                <p class="form-hint">JPG, PNG or WEBP &middot; Max 5 MB. Square images work best.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="fullName">Full Name</label>
+              <input type="text" id="fullName" name="fullName" class="form-input"
+                value="<%= user.profile.fullName %>" placeholder="Your full name">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="location">
+                <i class="fas fa-map-marker-alt"></i> Location
+              </label>
+              <input type="text" id="location" name="location" class="form-input"
+                value="<%= user.profile.location %>" placeholder="City, Country">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="bio">
+              <i class="fas fa-align-left"></i> Bio
+            </label>
+            <textarea id="bio" name="bio" class="form-textarea" rows="3"
+              placeholder="Tell the world what you do and what you're building..."><%= user.profile.bio %></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="website">
+              <i class="fas fa-globe"></i> Website / Portfolio URL
+            </label>
+            <input type="url" id="website" name="website" class="form-input"
+              value="<%= user.profile.website %>" placeholder="https://yoursite.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="skillCategory">
+              <i class="fas fa-briefcase"></i> What best describes you?
+            </label>
+            <select id="skillCategory" name="skillCategory" class="form-select">
+              <option value="webdev"      <%= user.skillCategory==='webdev'      ? 'selected':'' %>>Web Developer</option>
+              <option value="mobiledev"   <%= user.skillCategory==='mobiledev'   ? 'selected':'' %>>Mobile Developer</option>
+              <option value="design"      <%= user.skillCategory==='design'      ? 'selected':'' %>>Graphic / UI Designer</option>
+              <option value="marketing"   <%= user.skillCategory==='marketing'   ? 'selected':'' %>>Marketer</option>
+              <option value="content"     <%= user.skillCategory==='content'     ? 'selected':'' %>>Content Creator</option>
+              <option value="video"       <%= user.skillCategory==='video'       ? 'selected':'' %>>Video Creator</option>
+              <option value="photography" <%= user.skillCategory==='photography' ? 'selected':'' %>>Photographer</option>
+              <option value="music"       <%= user.skillCategory==='music'       ? 'selected':'' %>>Musician</option>
+              <option value="writing"     <%= user.skillCategory==='writing'     ? 'selected':'' %>>Writer / Blogger</option>
+              <option value="data"        <%= user.skillCategory==='data'        ? 'selected':'' %>>Data Scientist</option>
+              <option value="devops"      <%= user.skillCategory==='devops'      ? 'selected':'' %>>DevOps Engineer</option>
+              <option value="web3"        <%= user.skillCategory==='web3'        ? 'selected':'' %>>Web3 / Blockchain</option>
+              <option value="community"   <%= user.skillCategory==='community'   ? 'selected':'' %>>Community Manager</option>
+              <option value="research"    <%= user.skillCategory==='research'    ? 'selected':'' %>>Researcher</option>
+              <option value="other"       <%= user.skillCategory==='other'       ? 'selected':'' %>>Other / Creator</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Skills ── -->
+      <div class="settings-card">
+        <div class="settings-card-head">
+          <i class="fas fa-tags"></i>
+          <h2>Skills</h2>
+        </div>
+        <div class="settings-card-body">
+          <div class="form-group">
+            <label class="form-label">Type a skill and press Enter or comma to add</label>
+            <div class="skills-tags-wrap">
+              <input type="text" class="tag-input" placeholder="e.g. React, Figma, SEO...">
+            </div>
+            <input type="hidden" id="skillsHidden" name="skills" value="<%= user.skills.join(', ') %>">
+            <p class="form-hint">These appear as tags on your profile.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Social Links ── -->
+      <div class="settings-card">
+        <div class="settings-card-head">
+          <i class="fas fa-share-alt"></i>
+          <h2>Social Links</h2>
+        </div>
+        <div class="settings-card-body">
+          <div class="social-grid">
+            <div class="form-group">
+              <label class="form-label"><i class="fab fa-github"></i> GitHub</label>
+              <div class="input-group">
+                <span class="input-prefix">github.com/</span>
+                <input type="text" name="github" class="form-input"
+                  value="<%= user.profile.github %>" placeholder="username">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label"><i class="fab fa-x-twitter"></i> X (Twitter)</label>
+              <div class="input-group">
+                <span class="input-prefix">x.com/</span>
+                <input type="text" name="twitter" class="form-input"
+                  value="<%= user.profile.twitter %>" placeholder="username">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label"><i class="fab fa-linkedin"></i> LinkedIn</label>
+              <div class="input-group">
+                <span class="input-prefix">linkedin.com/in/</span>
+                <input type="text" name="linkedin" class="form-input"
+                  value="<%= user.profile.linkedin %>" placeholder="username">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label"><i class="fab fa-instagram"></i> Instagram</label>
+              <div class="input-group">
+                <span class="input-prefix">instagram.com/</span>
+                <input type="text" name="instagram" class="form-input"
+                  value="<%= user.profile.instagram %>" placeholder="username">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label"><i class="fab fa-facebook"></i> Facebook</label>
+              <div class="input-group">
+                <span class="input-prefix">facebook.com/</span>
+                <input type="text" name="facebook" class="form-input"
+                  value="<%= user.profile.facebook %>" placeholder="username or page">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label"><i class="fab fa-youtube"></i> YouTube</label>
+              <div class="input-group">
+                <span class="input-prefix">youtube.com/@</span>
+                <input type="text" name="youtube" class="form-input"
+                  value="<%= user.profile.youtube %>" placeholder="handle">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label"><i class="fab fa-tiktok"></i> TikTok</label>
+              <div class="input-group">
+                <span class="input-prefix">tiktok.com/@</span>
+                <input type="text" name="tiktok" class="form-input"
+                  value="<%= user.profile.tiktok %>" placeholder="username">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label"><i class="fab fa-discord"></i> Discord</label>
+              <input type="text" name="discord" class="form-input"
+                value="<%= user.profile.discord %>" placeholder="Server invite or username">
+            </div>
+            <div class="form-group">
+              <label class="form-label"><i class="fab fa-telegram"></i> Telegram</label>
+              <div class="input-group">
+                <span class="input-prefix">t.me/</span>
+                <input type="text" name="telegram" class="form-input"
+                  value="<%= user.profile.telegram %>" placeholder="username">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label"><i class="fab fa-behance"></i> Behance</label>
+              <div class="input-group">
+                <span class="input-prefix">behance.net/</span>
+                <input type="text" name="behance" class="form-input"
+                  value="<%= user.profile.behance %>" placeholder="username">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label"><i class="fab fa-dribbble"></i> Dribbble</label>
+              <div class="input-group">
+                <span class="input-prefix">dribbble.com/</span>
+                <input type="text" name="dribbble" class="form-input"
+                  value="<%= user.profile.dribbble %>" placeholder="username">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label"><i class="fas fa-circle-dot"></i> Farcaster</label>
+              <div class="input-group">
+                <span class="input-prefix">warpcast.com/</span>
+                <input type="text" name="farcaster" class="form-input"
+                  value="<%= user.profile.farcaster %>" placeholder="username">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Custom Links ── -->
+      <div class="settings-card">
+        <div class="settings-card-head">
+          <i class="fas fa-link"></i>
+          <h2>Custom Links <span style="font-weight:500;color:var(--gray-500);font-size:0.85rem;">(Linktree-style buttons on your profile)</span></h2>
+        </div>
+        <div class="settings-card-body">
+          <div class="links-list" id="linksList">
+            <% (user.customLinks || []).forEach((link, i) => { %>
+              <div class="link-row">
+                <input type="text"  name="linkTitle[]" class="form-input" placeholder="e.g. My Resume" value="<%= link.title %>" required>
+                <input type="url"   name="linkUrl[]"   class="form-input" placeholder="https://"        value="<%= link.url %>"   required>
+                <button type="button" class="link-row-remove"><i class="fas fa-trash"></i></button>
+              </div>
+            <% }); %>
+          </div>
+          <button type="button" id="addLinkBtn" class="btn btn-secondary btn-sm" style="margin-top:0.875rem;">
+            <i class="fas fa-plus"></i> Add a Link
+          </button>
+          <p class="form-hint" style="margin-top:0.5rem;">Add links to your resume, portfolio, case studies, or any other page.</p>
+        </div>
+      </div>
+
+      <!-- ── Zero Auth DAO ── -->
+      <div class="settings-card">
+        <div class="settings-card-head">
+          <i class="fas fa-shield-halved"></i>
+          <h2>Zero Auth DAO Reputation</h2>
+        </div>
+        <div class="settings-card-body">
+          <div class="dao-section-intro">
+            <strong>Connect your Stacks wallet</strong> to display your verified Zero Auth DAO reputation score, badges, and NFT count on your public profile.
+            Enter your <code>SP...</code> wallet address and click <em>Fetch Reputation</em>.
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="daoAddress">
+              <i class="fas fa-wallet"></i> Stacks Wallet Address
+            </label>
+            <div class="dao-fetch-row">
+              <div class="form-group">
+                <input type="text" id="daoAddress" name="daoAddress" class="form-input"
+                  value="<%= user.zeroAuthDAO.address %>"
+                  placeholder="SP2J6Y09JMFWWZCT4VJX0BA5GHNKBSJ7FQ6JQMP...">
+              </div>
+              <button type="button" id="fetchDaoBtn" class="btn btn-outline dao-fetch-btn">
+                <i class="fas fa-sync-alt"></i> Fetch Reputation
+              </button>
+            </div>
+          </div>
+
+          <div id="daoResult" class="dao-result" style="display:none;"></div>
+
+          <% if (user.zeroAuthDAO.address && user.zeroAuthDAO.lastFetched) { %>
+            <div class="dao-result success" style="margin-top:0.75rem;">
+              <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.75rem;">
+                <div style="font-weight:700;color:var(--purple);">
+                  <i class="fas fa-check-circle"></i>
+                  <%= user.zeroAuthDAO.displayName || 'DAO Member' %>
+                  <% if (user.zeroAuthDAO.bnsName) { %>
+                    <span style="font-weight:500;color:var(--gray-500);font-size:0.8rem;">&nbsp;&middot;&nbsp;<%= user.zeroAuthDAO.bnsName %></span>
+                  <% } %>
+                </div>
+                <span style="font-size:0.72rem;color:var(--gray-400);">Synced <%= new Date(user.zeroAuthDAO.lastFetched).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
+              </div>
+              <div class="dao-stat-row">
+                <div class="dao-stat">
+                  <span class="dao-stat-num"><%= user.zeroAuthDAO.score %></span>
+                  <span class="dao-stat-lbl">Activity Score</span>
+                </div>
+                <div class="dao-stat">
+                  <span class="dao-stat-num"><%= user.zeroAuthDAO.badges %></span>
+                  <span class="dao-stat-lbl">Endorsements</span>
+                </div>
+                <div class="dao-stat">
+                  <span class="dao-stat-num"><%= user.zeroAuthDAO.bounties || 0 %></span>
+                  <span class="dao-stat-lbl">Bounties</span>
+                </div>
+                <div class="dao-stat">
+                  <span class="dao-stat-num"><%= user.zeroAuthDAO.submissions || 0 %></span>
+                  <span class="dao-stat-lbl">Submissions</span>
+                </div>
+              </div>
+            </div>
+          <% } %>
+
+          <p class="form-hint" style="margin-top:0.625rem;">
+            Not a Zero Auth DAO member?
+            <a href="https://zeroauthoritydao.com" target="_blank" rel="noopener">Learn more</a> about joining the DAO.
+          </p>
+        </div>
+      </div>
+
+      <!-- ── Profile Color ── -->
+      <div class="settings-card">
+        <div class="settings-card-head">
+          <i class="fas fa-palette"></i>
+          <h2>Profile Accent Color</h2>
+        </div>
+        <div class="settings-card-body">
+          <p style="font-size:0.875rem;color:var(--gray-500);margin-bottom:1rem;">
+            Choose the gradient color for your profile banner and highlights.
+          </p>
+          <div class="color-row">
+            <label class="color-opt">
+              <input type="radio" name="accentColor" value="purple" <%= user.accentColor==='purple'||!user.accentColor ? 'checked':'' %>>
+              <div class="color-swatch sw-purple" title="Purple (default)"></div>
+            </label>
+            <label class="color-opt">
+              <input type="radio" name="accentColor" value="blue" <%= user.accentColor==='blue' ? 'checked':'' %>>
+              <div class="color-swatch sw-blue" title="Blue"></div>
+            </label>
+            <label class="color-opt">
+              <input type="radio" name="accentColor" value="green" <%= user.accentColor==='green' ? 'checked':'' %>>
+              <div class="color-swatch sw-green" title="Green"></div>
+            </label>
+            <label class="color-opt">
+              <input type="radio" name="accentColor" value="rose" <%= user.accentColor==='rose' ? 'checked':'' %>>
+              <div class="color-swatch sw-rose" title="Rose"></div>
+            </label>
+            <label class="color-opt">
+              <input type="radio" name="accentColor" value="orange" <%= user.accentColor==='orange' ? 'checked':'' %>>
+              <div class="color-swatch sw-orange" title="Orange"></div>
+            </label>
+            <label class="color-opt">
+              <input type="radio" name="accentColor" value="dark" <%= user.accentColor==='dark' ? 'checked':'' %>>
+              <div class="color-swatch sw-dark" title="Dark"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save -->
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save"></i> Save Changes
+        </button>
+        <a href="/dashboard" class="btn btn-secondary">
+          <i class="fas fa-times"></i> Cancel
+        </a>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script src="/js/main.js"></script>
+</body>
+</html>

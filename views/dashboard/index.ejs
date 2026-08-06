@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — POWtfolio</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<%- include('../partials/nav', { activePage: 'dashboard' }) %>
+
+<div class="app-layout">
+  <div class="container">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Welcome back, <strong><%= user.username %></strong></p>
+      </div>
+      <a href="/pow/add" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add Proof of Work
+      </a>
+    </div>
+
+    <!-- Share banner -->
+    <div class="share-banner">
+      <div class="share-banner-info">
+        <h3><i class="fas fa-share-nodes"></i> Your shareable profile link</h3>
+        <p>Share this link anywhere — your bio, LinkedIn, email signature, DMs</p>
+      </div>
+      <div class="share-pill">
+        <span id="profileUrl"><%= process.env.BASE_URL || 'http://localhost:3000' %>/<%= user.username %></span>
+        <button class="copy-btn" data-copy="<%= process.env.BASE_URL || 'http://localhost:3000' %>/<%= user.username %>">
+          <i class="fas fa-copy"></i> Copy
+        </button>
+        <a href="/<%= user.username %>" target="_blank" class="copy-btn" style="text-decoration:none;">
+          <i class="fas fa-external-link-alt"></i> View
+        </a>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon si-purple"><i class="fas fa-briefcase"></i></div>
+        <div>
+          <div class="stat-num"><%= stats.totalPOWs %></div>
+          <div class="stat-lbl">Total POWs</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon si-sky"><i class="fas fa-check-circle"></i></div>
+        <div>
+          <div class="stat-num"><%= stats.verifiedPOWs %></div>
+          <div class="stat-lbl">Verified POWs</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon si-emerald"><i class="fas fa-award"></i></div>
+        <div>
+          <div class="stat-num"><%= stats.totalBadges %></div>
+          <div class="stat-lbl">Badges</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon si-rose"><i class="fas fa-star"></i></div>
+        <div>
+          <div class="stat-num"><%= stats.reputation %></div>
+          <div class="stat-lbl">Reputation</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POW list -->
+    <div style="background:white;border-radius:var(--radius-xl);border:1.5px solid var(--gray-200);overflow:hidden;">
+      <div class="sect-head" style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--gray-100);background:var(--gray-50);">
+        <h2><i class="fas fa-clipboard-list" style="color:var(--purple);margin-right:0.4rem;"></i> Your Proof of Work</h2>
+        <a href="/pow/add" class="btn btn-sm btn-secondary"><i class="fas fa-plus"></i> New POW</a>
+      </div>
+
+      <div style="padding:1.5rem;">
+        <% if (pows.length === 0) { %>
+          <div class="empty-state">
+            <div class="empty-icon"><i class="fas fa-inbox"></i></div>
+            <h3>No POWs yet</h3>
+            <p>Add your first proof of work to start building your reputation</p>
+            <a href="/pow/add" class="btn btn-primary">
+              <i class="fas fa-plus"></i> Add Your First POW
+            </a>
+          </div>
+        <% } else { %>
+          <div class="pow-list">
+            <% pows.forEach(pow => {
+              const typeIcons = {
+                code:'fa-code', design:'fa-palette', marketing:'fa-bullhorn',
+                content:'fa-pen-nib', video:'fa-video', photography:'fa-camera',
+                music:'fa-music', research:'fa-flask', dao:'fa-users',
+                community:'fa-comments', project:'fa-project-diagram',
+                writing:'fa-file-alt', other:'fa-briefcase',
+                github:'fa-code', article:'fa-file-alt'
+              };
+              const icon = typeIcons[pow.type] || 'fa-briefcase';
+            %>
+              <div class="pow-item">
+                <div class="pow-item-icon"><i class="fas <%= icon %>"></i></div>
+                <div class="pow-item-body">
+                  <div class="pow-item-title"><%= pow.title %></div>
+                  <div class="pow-item-meta">
+                    <span class="badge badge-<%= pow.verification.status === 'self-reported' ? 'default' : 'success' %>">
+                      <% if (pow.verification.status === 'platform-verified') { %>
+                        <i class="fas fa-certificate"></i> Verified
+                      <% } else if (pow.verification.status === 'project-verified') { %>
+                        <i class="fas fa-shield-alt"></i> Project Verified
+                      <% } else { %>
+                        Self-reported
+                      <% } %>
+                    </span>
+                    &nbsp;·&nbsp;
+                    <%= new Date(pow.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) %>
+                    <% if (!pow.isPublic) { %>
+                      &nbsp;<span class="badge badge-warning"><i class="fas fa-eye-slash"></i> Private</span>
+                    <% } %>
+                  </div>
+                </div>
+                <div class="pow-item-actions">
+                  <a href="/pow/edit/<%= pow._id %>" class="btn-icon" title="Edit">
+                    <i class="fas fa-pen"></i>
+                  </a>
+                  <form method="POST" action="/pow/delete/<%= pow._id %>" style="display:inline;">
+                    <button type="submit" class="btn-icon danger" title="Delete"
+                      data-confirm="Delete '<%= pow.title %>'? This cannot be undone.">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Quick links -->
+    <div style="display:flex;gap:1rem;margin-top:1.5rem;flex-wrap:wrap;">
+      <a href="/dashboard/profile" class="btn btn-secondary">
+        <i class="fas fa-sliders"></i> Edit Profile & Settings
+      </a>
+      <a href="/<%= user.username %>" target="_blank" class="btn btn-outline">
+        <i class="fas fa-eye"></i> Preview My Profile
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<script src="/js/main.js"></script>
+</body>
+</html>

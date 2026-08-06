@@ -1,0 +1,31 @@
+<nav class="navbar">
+  <div class="container">
+    <div class="nav-brand">
+      <a href="/">
+        <div class="brand-icon"><i class="fas fa-bolt"></i></div>
+        <span>POWtfolio</span>
+      </a>
+    </div>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="nav-links" id="navLinks">
+      <% if (typeof user !== 'undefined' && user) { %>
+        <a href="/dashboard" class="nav-link <%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'active' : '' %>">
+          <i class="fas fa-th-large"></i> Dashboard
+        </a>
+        <a href="/<%= user.username %>" class="nav-link">
+          <i class="fas fa-user"></i> My Profile
+        </a>
+        <a href="/auth/logout" class="nav-link">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      <% } else { %>
+        <a href="/auth/login" class="nav-link">Login</a>
+        <a href="/auth/register" class="btn btn-primary btn-sm">Get Started Free</a>
+      <% } %>
+    </div>
+  </div>
+</nav>

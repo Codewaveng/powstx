@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Proof of Work — POWtfolio</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<%- include('../partials/nav') %>
+
+<div class="app-layout">
+  <div class="container" style="max-width:760px;">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title"><i class="fas fa-pen" style="color:var(--purple);"></i> Edit Proof of Work</h1>
+        <p class="page-subtitle">Update the details of your POW</p>
+      </div>
+      <a href="/dashboard" class="btn btn-secondary btn-sm">
+        <i class="fas fa-arrow-left"></i> Back
+      </a>
+    </div>
+
+    <% if (error) { %>
+      <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
+    <% } %>
+
+    <form method="POST" action="/pow/edit/<%= pow._id %>" enctype="multipart/form-data" class="pow-form-card">
+
+      <!-- Featured Image -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="fas fa-image"></i> Featured Image
+          <span style="color:var(--gray-400);font-weight:400;font-size:0.8rem;">(shown as card cover)</span>
+        </label>
+        <% if (pow.featuredImage) { %>
+          <div style="margin-bottom:0.75rem;border-radius:var(--radius-lg);overflow:hidden;height:180px;">
+            <img src="<%= pow.featuredImage %>" alt="Current featured image" style="width:100%;height:100%;object-fit:cover;">
+          </div>
+          <p class="form-hint" style="margin-bottom:0.625rem;">Upload a new image to replace the current cover.</p>
+        <% } %>
+        <div class="featured-img-drop" id="featuredImgDrop">
+          <input type="file" name="featuredImage" id="featuredImageFile" accept="image/*">
+          <div class="featured-img-placeholder" id="featuredImgPlaceholder">
+            <i class="fas fa-image"></i>
+            <span><%= pow.featuredImage ? 'Click or drag to replace' : 'Click or drag to upload a cover image' %></span>
+            <small>JPG, PNG, WEBP &middot; Max 10 MB &middot; 16:9 recommended</small>
+          </div>
+          <img class="featured-img-preview" id="featuredImgPreview" style="display:none;" alt="Preview">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="title">
+          <i class="fas fa-heading"></i> Title <span style="color:var(--rose);">*</span>
+        </label>
+        <input type="text" id="title" name="title" class="form-input"
+          value="<%= pow.title %>" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="description">
+          <i class="fas fa-align-left"></i> Description <span style="color:var(--rose);">*</span>
+        </label>
+        <textarea id="description" name="description" class="form-textarea" rows="5" required><%= pow.description %></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="type">
+            <i class="fas fa-tag"></i> Category <span style="color:var(--rose);">*</span>
+          </label>
+          <select id="type" name="type" class="form-select" required>
+            <option value="code"        <%= pow.type==='code'||pow.type==='github'  ? 'selected':'' %>>Code / Development</option>
+            <option value="design"      <%= pow.type==='design'      ? 'selected':'' %>>Design</option>
+            <option value="marketing"   <%= pow.type==='marketing'   ? 'selected':'' %>>Marketing</option>
+            <option value="content"     <%= pow.type==='content'     ? 'selected':'' %>>Content Creation</option>
+            <option value="writing"     <%= pow.type==='writing'||pow.type==='article' ? 'selected':'' %>>Writing / Blog</option>
+            <option value="video"       <%= pow.type==='video'       ? 'selected':'' %>>Video Production</option>
+            <option value="photography" <%= pow.type==='photography' ? 'selected':'' %>>Photography</option>
+            <option value="music"       <%= pow.type==='music'       ? 'selected':'' %>>Music</option>
+            <option value="research"    <%= pow.type==='research'    ? 'selected':'' %>>Research</option>
+            <option value="dao"         <%= pow.type==='dao'         ? 'selected':'' %>>DAO Contribution</option>
+            <option value="community"   <%= pow.type==='community'   ? 'selected':'' %>>Community Building</option>
+            <option value="project"     <%= pow.type==='project'     ? 'selected':'' %>>Project Management</option>
+            <option value="other"       <%= pow.type==='other'       ? 'selected':'' %>>Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="proofLink">
+            <i class="fas fa-link"></i> Proof Link (optional)
+          </label>
+          <input type="url" id="proofLink" name="proofLink" class="form-input"
+            value="<%= pow.proofLink %>" placeholder="https://...">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="fas fa-file-upload"></i> Proof File
+        </label>
+        <% if (pow.fileUrl) { %>
+          <div style="margin-bottom:0.75rem;padding:0.625rem 1rem;background:rgba(124,58,237,0.06);border-radius:var(--radius);display:flex;align-items:center;gap:0.75rem;">
+            <i class="fas fa-file" style="color:var(--purple);"></i>
+            <span style="font-size:0.875rem;color:var(--gray-700);">Current file:</span>
+            <a href="<%= pow.fileUrl %>" target="_blank" class="existing-file-link">
+              <i class="fas fa-external-link-alt"></i> View current file
+            </a>
+          </div>
+        <% } %>
+        <div class="file-drop" id="fileDrop">
+          <input type="file" name="proofFile" id="proofFile" accept="image/*,.pdf">
+          <div class="file-drop-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+          <div class="file-drop-text">
+            <strong>Click to upload a new file</strong> or drag and drop<br>
+            <small>Images or PDF · Max 10 MB · Leave empty to keep current file</small>
+          </div>
+          <div class="file-chosen" id="fileChosen">
+            <i class="fas fa-file-check"></i>
+            <span class="file-chosen-name"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="skillsInput">
+          <i class="fas fa-tags"></i> Skills Used
+        </label>
+        <input type="text" id="skillsInput" name="skills" class="form-input"
+          value="<%= pow.skills.join(', ') %>"
+          placeholder="React, Figma, SEO... (comma separated)">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="startDate">
+            <i class="far fa-calendar"></i> Start Date <span style="color:var(--rose);">*</span>
+          </label>
+          <input type="date" id="startDate" name="startDate" class="form-input"
+            value="<%= pow.startDate.toISOString().split('T')[0] %>" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="endDate">
+            <i class="far fa-calendar-check"></i> End Date
+          </label>
+          <input type="date" id="endDate" name="endDate" class="form-input"
+            value="<%= pow.endDate ? pow.endDate.toISOString().split('T')[0] : '' %>">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-check">
+          <input type="checkbox" name="isPublic" <%= pow.isPublic ? 'checked' : '' %>>
+          <span class="form-check-label">
+            <i class="fas fa-eye" style="color:var(--purple);"></i>
+            Show this POW publicly on my profile
+          </span>
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save"></i> Save Changes
+        </button>
+        <a href="/dashboard" class="btn btn-secondary">
+          <i class="fas fa-times"></i> Cancel
+        </a>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script src="/js/main.js"></script>
+</body>
+</html>
