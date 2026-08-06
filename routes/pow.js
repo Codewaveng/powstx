@@ -12,8 +12,14 @@ function requireAuth(req, res, next) {
 }
 
 // Multer config for proof file uploads
+const UPLOAD_DIR = process.env.VERCEL ? '/tmp/uploads' : path.join(__dirname, '..', 'public', 'uploads');
+
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'public/uploads/'),
+  destination: (req, file, cb) => {
+    const fs = require('fs');
+    if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+    cb(null, UPLOAD_DIR);
+  },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
     cb(null, `pow-${req.session.user.id}-${Date.now()}${ext}`);

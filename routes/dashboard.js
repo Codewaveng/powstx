@@ -7,9 +7,15 @@ const POW = require('../models/POW');
 const Badge = require('../models/Badge');
 const { fetchWalletReputation } = require('../utils/zeroauth');
 
+const UPLOAD_DIR = process.env.VERCEL ? '/tmp/uploads' : path.join(__dirname, '..', 'public', 'uploads');
+
 const avatarUpload = multer({
   storage: multer.diskStorage({
-    destination: (req, file, cb) => cb(null, 'public/uploads/'),
+    destination: (req, file, cb) => {
+      const fs = require('fs');
+      if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+      cb(null, UPLOAD_DIR);
+    },
     filename: (req, file, cb) => {
       const ext = path.extname(file.originalname).toLowerCase();
       cb(null, `avatar-${req.session.user.id}-${Date.now()}${ext}`);
