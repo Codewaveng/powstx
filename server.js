@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const methodOverride = require('method-override');
 const path = require('path');
 
@@ -34,9 +35,15 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'powtfolio-secret',
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    ttl: 24 * 60 * 60,        // 24 hours
+    autoRemove: 'native'
+  }),
   cookie: {
     maxAge: 24 * 60 * 60 * 1000,
-    secure: process.env.VERCEL ? true : false
+    secure: !!process.env.VERCEL,
+    sameSite: process.env.VERCEL ? 'lax' : 'lax'
   }
 }));
 

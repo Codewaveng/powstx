@@ -85,7 +85,7 @@ router.post('/login', async (req, res) => {
       });
     }
     
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
     
     if (!user) {
       return res.render('auth/login', { 
