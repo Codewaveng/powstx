@@ -163,5 +163,8 @@
 </div>
 
 <script src="/js/main.js"></script>
+<% if (error) { %>
+<script>window.__toasts=[{msg:<%- JSON.stringify(error) %>,type:'error'}];</script>
+<% } %>
 </body>
 </html>

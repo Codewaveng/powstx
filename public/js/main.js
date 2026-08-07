@@ -1,5 +1,40 @@
 // POWtfolio v2 — Main JS
 
+// ── Toast notification system ──────────────────────────
+function showToast(msg, type = 'info', duration = 4000) {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    document.body.appendChild(container);
+  }
+
+  const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.style.setProperty('--toast-dur', `${duration / 1000}s`);
+  toast.innerHTML = `
+    <i class="fas ${icons[type] || icons.info} toast-icon"></i>
+    <span class="toast-msg">${msg}</span>
+    <button class="toast-close" aria-label="Dismiss"><i class="fas fa-times"></i></button>`;
+
+  function dismiss() {
+    toast.classList.add('hiding');
+    setTimeout(() => toast.remove(), 260);
+  }
+
+  toast.querySelector('.toast-close').addEventListener('click', dismiss);
+  container.appendChild(toast);
+  setTimeout(dismiss, duration);
+}
+
+// Show toasts injected by server (via window.__toasts array)
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.__toasts && Array.isArray(window.__toasts)) {
+    window.__toasts.forEach(({ msg, type }) => showToast(msg, type));
+  }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
 
   // ── Mobile nav toggle ──────────────────────────────

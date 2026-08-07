@@ -8,14 +8,14 @@ const path = require('path');
 
 const app = express();
 
-// Cache DB connection across serverless invocations
-let dbConnected = false;
-async function connectDB() {
-  if (dbConnected) return;
-  if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI is not set');
-  await mongoose.connect(process.env.MONGODB_URI);
-  dbConnected = true;
-  console.log('MongoDB connected');
+// Trust Render/Vercel/etc reverse proxy so secure cookies & IPs work correctly
+app.set('trust proxy', 1);
+
+// Start connecting to MongoDB immediately so the connection is ready early
+if (process.env.MONGODB_URI) {
+  mongoose.connect(process.env.MONGODB_URI)
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.error('MongoDB initial connect error:', err.message));
 }
 
 // Middleware
@@ -32,10 +32,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride('_method'));
 
-// Build session store — only use MongoStore when MONGODB_URI is available
+// Session store — shares the mongoose connection so there's only one MongoDB client
 const sessionStore = process.env.MONGODB_URI
   ? MongoStore.create({
-      mongoUrl: process.env.MONGODB_URI,
+      mongooseConnection: mongoose.connection,
       ttl: 24 * 60 * 60,
       autoRemove: 'interval',
       autoRemoveInterval: 60
@@ -49,19 +49,23 @@ app.use(session({
   store: sessionStore,
   cookie: {
     maxAge: 24 * 60 * 60 * 1000,
-    secure: !!process.env.VERCEL,
+    secure: false,   // false = sent on both HTTP and HTTPS (works behind all proxies)
+    httpOnly: true,
     sameSite: 'lax'
   }
 }));
 
-// Ensure DB is connected before every request (handles cold starts on Vercel)
+// Ensure DB is connected before every request (handles cold starts)
 app.use(async (req, res, next) => {
+  if (!process.env.MONGODB_URI) {
+    return res.status(500).send('MONGODB_URI environment variable is not set.');
+  }
   try {
-    await connectDB();
+    await mongoose.connection.asPromise();
     next();
   } catch (err) {
     console.error('DB connection failed:', err.message);
-    res.status(500).send('Database connection error. Please check environment variables.');
+    res.status(500).send('Database connection error. Please try again.');
   }
 });
 

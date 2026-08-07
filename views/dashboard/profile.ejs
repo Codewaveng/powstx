@@ -387,5 +387,13 @@
 </div>
 
 <script src="/js/main.js"></script>
+<% if (success || error) { %>
+<script>
+window.__toasts = [
+  <% if (success) { %>{msg:<%- JSON.stringify(success) %>,type:'success'},<% } %>
+  <% if (error)   { %>{msg:<%- JSON.stringify(error)   %>,type:'error'},  <% } %>
+];
+</script>
+<% } %>
 </body>
 </html>

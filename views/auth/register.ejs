@@ -87,6 +87,9 @@
   </div>
 </div>
 <script src="/js/main.js"></script>
+<% if (error) { %>
+<script>window.__toasts=[{msg:<%- JSON.stringify(error) %>,type:'error'}];</script>
+<% } %>
 <script>
   // Password match validation
   const p1 = document.getElementById('password');
