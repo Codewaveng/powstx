@@ -12,57 +12,60 @@ router.get('/register', (req, res) => {
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password, confirmPassword } = req.body;
-    
-    // Validation
+
     if (!username || !email || !password) {
-      return res.render('auth/register', { 
-        title: 'Register', 
-        error: 'All fields are required' 
+      return res.render('auth/register', {
+        title: 'Register',
+        error: 'All fields are required'
       });
     }
-    
+
     if (password !== confirmPassword) {
-      return res.render('auth/register', { 
-        title: 'Register', 
-        error: 'Passwords do not match' 
+      return res.render('auth/register', {
+        title: 'Register',
+        error: 'Passwords do not match'
       });
     }
-    
+
     if (password.length < 6) {
-      return res.render('auth/register', { 
-        title: 'Register', 
-        error: 'Password must be at least 6 characters' 
+      return res.render('auth/register', {
+        title: 'Register',
+        error: 'Password must be at least 6 characters'
       });
     }
-    
-    // Check if user exists
-    const existingUser = await User.findOne({ 
-      $or: [{ email }, { username }] 
+
+    const existingUser = await User.findOne({
+      $or: [{ email: email.toLowerCase().trim() }, { username }]
     });
-    
+
     if (existingUser) {
-      return res.render('auth/register', { 
-        title: 'Register', 
-        error: 'Username or email already exists' 
+      return res.render('auth/register', {
+        title: 'Register',
+        error: 'Username or email already exists'
       });
     }
-    
-    // Create user
-    const user = new User({ username, email, password });
+
+    const user = new User({ username, email: email.toLowerCase().trim(), password });
     await user.save();
-    
+
     req.session.user = {
       id: user._id,
       username: user.username,
       email: user.email
     };
-    
-    res.redirect('/dashboard');
+
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.render('auth/register', { title: 'Register', error: 'Registration failed. Please try again.' });
+      }
+      res.redirect('/dashboard');
+    });
   } catch (error) {
     console.error(error);
-    res.render('auth/register', { 
-      title: 'Register', 
-      error: 'Registration failed. Please try again.' 
+    res.render('auth/register', {
+      title: 'Register',
+      error: 'Registration failed. Please try again.'
     });
   }
 });
@@ -77,52 +80,59 @@ router.get('/login', (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    
+
     if (!email || !password) {
-      return res.render('auth/login', { 
-        title: 'Login', 
-        error: 'Email and password are required' 
+      return res.render('auth/login', {
+        title: 'Login',
+        error: 'Email and password are required'
       });
     }
-    
+
     const user = await User.findOne({ email: email.toLowerCase().trim() });
-    
+
     if (!user) {
-      return res.render('auth/login', { 
-        title: 'Login', 
-        error: 'Invalid email or password' 
+      return res.render('auth/login', {
+        title: 'Login',
+        error: 'Invalid email or password'
       });
     }
-    
+
     const isMatch = await user.comparePassword(password);
-    
+
     if (!isMatch) {
-      return res.render('auth/login', { 
-        title: 'Login', 
-        error: 'Invalid email or password' 
+      return res.render('auth/login', {
+        title: 'Login',
+        error: 'Invalid email or password'
       });
     }
-    
+
     req.session.user = {
       id: user._id,
       username: user.username,
       email: user.email
     };
-    
-    res.redirect('/dashboard');
+
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.render('auth/login', { title: 'Login', error: 'Login failed. Please try again.' });
+      }
+      res.redirect('/dashboard');
+    });
   } catch (error) {
     console.error(error);
-    res.render('auth/login', { 
-      title: 'Login', 
-      error: 'Login failed. Please try again.' 
+    res.render('auth/login', {
+      title: 'Login',
+      error: 'Login failed. Please try again.'
     });
   }
 });
 
 // Logout
 router.get('/logout', (req, res) => {
-  req.session.destroy();
-  res.redirect('/');
+  req.session.destroy(() => {
+    res.redirect('/');
+  });
 });
 
 module.exports = router;
