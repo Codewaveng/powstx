@@ -32,10 +32,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride('_method'));
 
-// Session store — shares the mongoose connection so there's only one MongoDB client
+// Session store
 const sessionStore = process.env.MONGODB_URI
   ? MongoStore.create({
-      mongooseConnection: mongoose.connection,
+      mongoUrl: process.env.MONGODB_URI,
       ttl: 24 * 60 * 60,
       autoRemove: 'interval',
       autoRemoveInterval: 60
