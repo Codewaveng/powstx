@@ -114,7 +114,7 @@ router.post('/add', requireAuth, async (req, res) => {
     if (powCount === 5)  await new Badge({ user: req.session.user.id, name: '5 POWs',        description: 'Added 5 proofs of work',         icon: 'award'  }).save();
     if (powCount === 10) await new Badge({ user: req.session.user.id, name: 'Power Builder', description: 'Added 10 proofs of work',        icon: 'trophy' }).save();
 
-    res.redirect('/dashboard');
+    res.redirect('/dashboard?notice=created');
   } catch (error) {
     console.error('POW add error:', error);
     res.render('pow/add', {
@@ -159,7 +159,7 @@ router.post('/edit/:id', requireAuth, async (req, res) => {
     pow.isPublic  = isPublic === 'on';
 
     await pow.save();
-    res.redirect('/dashboard');
+    res.redirect('/dashboard?notice=updated');
   } catch (error) {
     console.error('POW edit error:', error);
     try {
@@ -174,7 +174,8 @@ router.post('/edit/:id', requireAuth, async (req, res) => {
 // Delete POW
 router.post('/delete/:id', requireAuth, async (req, res) => {
   try {
-    await POW.findOneAndDelete({ _id: req.params.id, user: req.session.user.id });
+    const deleted = await POW.findOneAndDelete({ _id: req.params.id, user: req.session.user.id });
+    return res.redirect(deleted ? '/dashboard?notice=deleted' : '/dashboard');
   } catch (error) {
     console.error(error);
   }

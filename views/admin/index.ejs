@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %> | POWtfolio</title><link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .admin-wrap{max-width:1050px;margin:48px auto;padding:0 22px 64px}.admin-wrap h1{margin-bottom:8px}.admin-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:28px 0 42px}.admin-stat,.review-row{padding:22px;border:1px solid #e5e7eb;border-radius:14px;background:#fff}.admin-stat strong{display:block;font-size:2rem}.review-list{display:grid;gap:14px}.review-row header{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}.review-stars{color:#f0a126}.review-message{white-space:pre-wrap;line-height:1.6}.review-actions{display:flex;gap:10px}.review-actions form{display:inline}.review-actions button{border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:700}.approve{background:#e6f5ec;color:#176d37}.reject{background:#fff0ee;color:#a33125}.admin-note{padding:12px 16px;margin:18px 0;border-radius:8px;background:#eef4ff}.admin-empty{color:#667085;padding:20px 0}@media(max-width:620px){.admin-stats{grid-template-columns:1fr}}
+  </style>
+</head>
+<body><main class="admin-wrap">
+  <a href="/" class="nav-link">← POWtfolio</a>
+  <h1>Review moderation</h1><p>Review pending endorsements and keep public profiles trustworthy.</p>
+  <% if (notice) { %><div class="admin-note" role="status"><%= notice === 'approved' ? 'Review approved and published.' : notice === 'rejected' ? 'Review rejected.' : notice === 'missing' ? 'That review was already handled.' : 'Something went wrong. Please try again.' %></div><% } %>
+  <section class="admin-stats" aria-label="Platform totals">
+    <div class="admin-stat"><span>Total users</span><strong><%= totalUsers %></strong></div>
+    <div class="admin-stat"><span>Total proof of work</span><strong><%= totalPOWs %></strong></div>
+    <div class="admin-stat"><span>Approved reviews</span><strong><%= approvedReviews %></strong></div>
+  </section>
+  <h2>Pending reviews <span>(<%= pendingReviews.length %>)</span></h2>
+  <% if (!pendingReviews.length) { %><p class="admin-empty">No reviews need approval right now.</p><% } %>
+  <section class="review-list">
+    <% pendingReviews.forEach(review => { %>
+      <article class="review-row">
+        <header><div><strong><%= review.name %></strong> for <a href="/<%= encodeURIComponent(review.subject.username) %>" target="_blank" rel="noopener"><%= review.subject.profile.fullName || review.subject.username %></a>
+          <div class="review-stars" aria-label="<%= review.rating %> out of 5 stars"><%= '★'.repeat(review.rating) %><span style="color:#d0d5dd"><%= '★'.repeat(5-review.rating) %></span> <%= review.rating %>/5</div></div>
+          <small><%= new Date(review.createdAt).toLocaleString() %></small></header>
+        <p class="review-message"><%= review.message %></p>
+        <div class="review-actions"><form method="post" action="/admin/reviews/<%= review._id %>/approve"><button class="approve" type="submit">Approve</button></form><form method="post" action="/admin/reviews/<%= review._id %>/reject"><button class="reject" type="submit">Reject</button></form></div>
+      </article>
+    <% }); %>
+  </section>
+</main>
+<% if (notice === 'approved' || notice === 'rejected') { %><script>window.__toasts=[{msg:<%- JSON.stringify(notice === 'approved' ? 'Review approved and published.' : 'Review rejected.') %>,type:'success'}];</script><% } %>
+<script src="/js/main.js"></script></body></html>

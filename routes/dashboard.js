@@ -48,7 +48,12 @@ router.get('/', requireAuth, async (req, res) => {
       reputation:  user.reputation.score
     };
 
-    res.render('dashboard/index', { title: 'Dashboard', user, pows, badges, stats });
+    const notices = {
+      created: 'Proof of work added successfully.',
+      updated: 'Proof of work updated successfully.',
+      deleted: 'Proof of work deleted successfully.'
+    };
+    res.render('dashboard/index', { title: 'Dashboard', user, pows, badges, stats, toast: notices[req.query.notice] || null });
   } catch (error) {
     console.error(error);
     res.status(500).send('Server error');

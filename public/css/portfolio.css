@@ -219,6 +219,26 @@ body.portfolio-site.theme-garden .folio-project { border-radius:22px 7px; }
 body.portfolio-site.theme-midnight { --folio-ink:#edf3fb; --folio-muted:#aab7c9; --folio-paper:#121a27; --folio-surface:#1c2838; --folio-line:#344256; --folio-soft:#26374d; color:var(--folio-ink); }
 body.portfolio-site.theme-midnight .folio-about { background:#1b2736; }
 
+/* Public recommendations and star ratings */
+.folio-reviews { padding-top:84px; padding-bottom:88px; }
+.folio-review-layout { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr); gap:32px; align-items:start; }
+.folio-review-list { display:grid; gap:14px; }
+.folio-review-card,.folio-review-form { padding:22px; border:1px solid var(--folio-line); background:var(--folio-surface); }
+.folio-review-card-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.folio-review-card-top strong,.folio-review-form h3 { color:var(--folio-ink); font:600 1.1rem 'Space Grotesk',sans-serif; }
+.folio-review-stars { color:#e49a28; letter-spacing:.08em; white-space:nowrap; }
+.folio-review-stars span { color:#d6d9dc; }
+.folio-review-card p,.folio-review-form>p { color:var(--folio-muted); line-height:1.7; }
+.folio-review-card time { color:var(--folio-muted); font-size:.8rem; }
+.folio-review-empty { padding:22px 0; color:var(--folio-muted); }
+.folio-review-form { display:grid; gap:10px; }
+.folio-review-form h3,.folio-review-form>p { margin:0; }
+.folio-review-form label { margin-top:5px; color:var(--folio-ink); font-size:.88rem; font-weight:700; }
+.folio-review-form input,.folio-review-form select,.folio-review-form textarea { width:100%; padding:12px 13px; border:1px solid var(--folio-line); border-radius:4px; color:var(--folio-ink); background:var(--folio-paper); font:inherit; }
+.folio-review-form textarea { resize:vertical; }
+.folio-review-form .folio-btn { justify-self:start; margin-top:8px; cursor:pointer; }
+@media(max-width:720px) { .folio-reviews { padding-top:58px; padding-bottom:62px; } .folio-review-layout { grid-template-columns:1fr; gap:20px; } }
+
 /* Portfolio cards and compact navigation refinements */
 .folio-project {
   border-radius:14px;

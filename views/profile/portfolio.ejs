@@ -10,6 +10,7 @@
   <meta property="og:description" content="<%= profileUser.profile.bio || 'Selected work and proof of work.' %>">
   <meta property="og:url" content="<%= (process.env.BASE_URL || 'http://localhost:3000').replace(/\/$/, '') %>/<%= profileUser.username %>">
   <meta name="twitter:card" content="summary_large_image">
+  <% if (typeof reviewToast !== 'undefined' && reviewToast) { %><script>window.__toasts=[<%- JSON.stringify(reviewToast) %>];</script><% } %>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/css/portfolio.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
@@ -141,6 +142,27 @@ const socialLinks = [
           <div class="folio-about-facts"><span><i class="fas fa-layer-group"></i><%= category %></span><% if (profileUser.profile.location) { %><span><i class="fas fa-location-dot"></i><%= profileUser.profile.location %></span><% } %><% if (profileUser.zeroAuthDAO && profileUser.zeroAuthDAO.bnsName) { %><span><i class="fas fa-globe"></i><%= profileUser.zeroAuthDAO.bnsName %></span><% } %></div>
           <% if (allSkills.length) { %><div class="folio-about-skills"><span>AREAS I WORK IN</span><div><% allSkills.forEach(skill => { %><span><%= skill %></span><% }); %></div></div><% } %>
         </div>
+      </div>
+    </section>
+
+    <section class="folio-reviews page-width" id="reviews">
+      <div class="folio-section-heading">
+        <div><p class="folio-eyebrow">TRUSTED BY PEOPLE</p><h2>Recommendations<em>.</em></h2><p class="folio-section-intro">People who have worked with <%= name %> can leave a review. Reviews appear after approval.</p></div>
+        <span class="folio-section-count"><% if (stats.reviewCount) { %><span aria-label="Average rating"><%= stats.ratingAverage %> / 5 ★</span> · <% } %><%= stats.reviewCount || 0 %> REVIEWS</span>
+      </div>
+      <div class="folio-review-layout">
+        <div class="folio-review-list">
+          <% if (typeof reviews !== 'undefined' && reviews.length) { reviews.forEach(review => { %>
+            <article class="folio-review-card"><div class="folio-review-card-top"><strong><%= review.name %></strong><span class="folio-review-stars" aria-label="<%= review.rating %> out of 5 stars"><%= '★'.repeat(review.rating) %><span><%= '★'.repeat(5-review.rating) %></span></span></div><p><%= review.message %></p><time datetime="<%= review.createdAt.toISOString() %>"><%= new Date(review.createdAt).toLocaleDateString() %></time></article>
+          <% }); } else { %><p class="folio-review-empty">No recommendations yet. Be the first to share your experience.</p><% } %>
+        </div>
+        <form class="folio-review-form" method="post" action="/<%= encodeURIComponent(profileUser.username) %>/reviews">
+          <h3>Leave a review</h3><p>Your review will be public after it is approved.</p>
+          <label for="reviewName">Your name</label><input id="reviewName" name="name" maxlength="80" required>
+          <label for="reviewRating">Rating</label><select id="reviewRating" name="rating" required><option value="">Choose a rating</option><option value="5">★★★★★ — Excellent</option><option value="4">★★★★ — Very good</option><option value="3">★★★ — Good</option><option value="2">★★ — Fair</option><option value="1">★ — Needs improvement</option></select>
+          <label for="reviewMessage">Your review</label><textarea id="reviewMessage" name="message" rows="5" maxlength="1200" required placeholder="What was it like working together?"></textarea>
+          <button class="folio-btn folio-btn-primary" type="submit">Send for approval <i class="fas fa-arrow-right"></i></button>
+        </form>
       </div>
     </section>
 

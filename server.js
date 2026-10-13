@@ -130,6 +130,8 @@ app.use('/', require('./routes/index'));
 app.use('/auth', require('./routes/auth'));
 app.use('/dashboard', require('./routes/dashboard'));
 app.use('/pow', require('./routes/pow'));
+app.use('/admin', require('./routes/admin'));
+app.use('/', require('./routes/reviews'));
 app.use('/', require('./routes/profile'));
 
 // 404 handler

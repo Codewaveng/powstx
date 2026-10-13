@@ -15,7 +15,7 @@ function showToast(msg, type = 'info', duration = 4000) {
   toast.style.setProperty('--toast-dur', `${duration / 1000}s`);
   toast.innerHTML = `
     <i class="fas ${icons[type] || icons.info} toast-icon"></i>
-    <span class="toast-msg">${msg}</span>
+    <span class="toast-msg"></span>
     <button class="toast-close" aria-label="Dismiss"><i class="fas fa-times"></i></button>`;
 
   function dismiss() {
@@ -23,6 +23,7 @@ function showToast(msg, type = 'info', duration = 4000) {
     setTimeout(() => toast.remove(), 260);
   }
 
+  toast.querySelector('.toast-msg').textContent = msg;
   toast.querySelector('.toast-close').addEventListener('click', dismiss);
   container.appendChild(toast);
   setTimeout(dismiss, duration);

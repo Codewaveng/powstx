@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const POW = require('../models/POW');
 const Badge = require('../models/Badge');
+const Review = require('../models/Review');
 const { applyPortfolioDefaults } = require('../utils/portfolioDefaults');
 
 const skillCategoryLabels = {
@@ -62,12 +63,18 @@ router.get('/:username', async (req, res) => {
 
     const pows = await POW.find({ user: profileUser._id, isPublic: true }).sort({ startDate: -1 });
     const badges = await Badge.find({ user: profileUser._id });
+    const reviews = await Review.find({ subject: profileUser._id, status: 'approved' }).sort({ createdAt: -1 });
+    const ratingAverage = reviews.length
+      ? Math.round((reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length) * 10) / 10
+      : 0;
 
     const stats = {
       totalPOWs:    pows.length,
       verifiedPOWs: pows.filter(p => p.verification.status !== 'self-reported').length,
       totalBadges:  badges.length,
-      reputation:   profileUser.reputation.score
+      reputation:   profileUser.reputation.score,
+      reviewCount: reviews.length,
+      ratingAverage
     };
 
     // Increment profile views (fire and forget)
@@ -80,7 +87,9 @@ router.get('/:username', async (req, res) => {
       profileUser,
       pows,
       badges,
+      reviews,
       stats,
+      reviewToast: ({ submitted: { msg: 'Thanks! Your review was sent for approval.', type: 'success' }, invalid: { msg: 'Please check your name, rating, and review.', type: 'error' }, error: { msg: 'We could not submit your review. Please try again.', type: 'error' } })[req.query.review] || null,
       isOwner,
       skillCategoryLabels,
       powTypeLabels
