@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <meta name="description" content="<%= profileUser.profile.bio || 'Selected work and proof by ' + (profileUser.profile.fullName || profileUser.username) %>">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="<%= profileUser.profile.fullName || profileUser.username %> | Portfolio">
+  <meta property="og:description" content="<%= profileUser.profile.bio || 'Selected work and proof of work.' %>">
+  <meta property="og:url" content="<%= (process.env.BASE_URL || 'http://localhost:3000').replace(/\/$/, '') %>/<%= profileUser.username %>">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/css/portfolio.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+</head>
+<%
+const themeNames = ['studio','editorial','ocean','garden','midnight','canvas'];
+const theme = themeNames.includes(profileUser.profile.theme) ? profileUser.profile.theme : 'studio';
+const accent = /^#[0-9a-fA-F]{6}$/.test(profileUser.profile.accentHex || '') ? profileUser.profile.accentHex : '#3978d4';
+const category = (skillCategoryLabels || {})[profileUser.skillCategory] || 'Independent Creator';
+const name = profileUser.profile.fullName || profileUser.username;
+const fullBio = profileUser.profile.bio || 'I like solving thoughtful problems and turning ideas into work people can see, use, and trust.';
+const heroIntro = fullBio.length > 150 ? fullBio.slice(0, 147).trimEnd() + '...' : fullBio;
+const allSkills = [...new Set((pows || []).flatMap(project => project.skills || []))].slice(0, 14);
+const socialLinks = [
+  { key:'github', label:'GitHub', icon:'fab fa-github', base:'https://github.com/' },
+  { key:'twitter', label:'X', icon:'fab fa-x-twitter', base:'https://x.com/' },
+  { key:'linkedin', label:'LinkedIn', icon:'fab fa-linkedin', base:'https://linkedin.com/in/' },
+  { key:'instagram', label:'Instagram', icon:'fab fa-instagram', base:'https://instagram.com/' },
+  { key:'facebook', label:'Facebook', icon:'fab fa-facebook', base:'https://facebook.com/' },
+  { key:'youtube', label:'YouTube', icon:'fab fa-youtube', base:'https://youtube.com/@' },
+  { key:'tiktok', label:'TikTok', icon:'fab fa-tiktok', base:'https://tiktok.com/@' },
+  { key:'discord', label:'Discord', icon:'fab fa-discord', base:'' },
+  { key:'telegram', label:'Telegram', icon:'fab fa-telegram', base:'https://t.me/' },
+  { key:'behance', label:'Behance', icon:'fab fa-behance', base:'https://behance.net/' },
+  { key:'dribbble', label:'Dribbble', icon:'fab fa-dribbble', base:'https://dribbble.com/' },
+  { key:'farcaster', label:'Farcaster', icon:'fas fa-circle-dot', base:'https://warpcast.com/' }
+].filter(link => profileUser.profile[link.key]);
+%>
+<body class="portfolio-site theme-<%= theme %>" style="--portfolio-accent:<%= accent %>">
+  <header class="folio-header">
+    <a href="/" class="folio-brand" aria-label="POWtfolio home"><img src="/logo.jpg" alt="" class="folio-logo"> <span>POWtfolio</span></a>
+    <nav class="folio-nav" aria-label="Main navigation">
+      <a href="#work">Work</a><a href="#about">About</a><a href="#contact">Contact</a>
+    </nav>
+    <% if (isOwner) { %>
+      <a href="/dashboard/profile" class="folio-nav-cta">Edit portfolio <i class="fas fa-arrow-up-right-from-square"></i></a>
+    <% } else { %>
+      <a href="/auth/register" class="folio-nav-cta">Make yours <i class="fas fa-arrow-up-right-from-square"></i></a>
+    <% } %>
+  </header>
+
+  <main>
+    <section class="folio-hero page-width">
+      <div class="folio-hero-copy">
+        <p class="folio-eyebrow"><span></span><%= category %><i>/</i> PORTFOLIO &amp; PROOF OF WORK</p>
+        <h1><%= name %><em>.</em></h1>
+        <p class="folio-hero-bio"><%= heroIntro %></p>
+        <div class="folio-hero-actions">
+          <a class="folio-btn folio-btn-primary" href="#work">Explore selected work <i class="fas fa-arrow-down"></i></a>
+          <button class="folio-btn folio-btn-text" type="button" data-copy="<%= process.env.BASE_URL || 'http://localhost:3000' %>/<%= profileUser.username %>"><i class="far fa-copy"></i> Copy my link</button>
+        </div>
+        <div class="folio-hero-meta">
+          <% if (profileUser.profile.location) { %><span><i class="fas fa-location-dot"></i><%= profileUser.profile.location %></span><% } %>
+          <% if (profileUser.zeroAuthDAO && profileUser.zeroAuthDAO.address) { %><span class="folio-verified"><i class="fas fa-shield-halved"></i> Onchain proof connected</span><% } %>
+        </div>
+      </div>
+      <div class="folio-hero-visual">
+        <div class="folio-visual-backdrop" aria-hidden="true"></div>
+        <% if (profileUser.profile.coverImage) { %>
+          <img class="folio-cover" src="<%= profileUser.profile.coverImage %>" alt="" fetchpriority="high">
+        <% } else { %>
+          <div class="folio-cover folio-cover-placeholder" aria-hidden="true"><span>SELECTED<br>WORK</span><i class="fas fa-asterisk"></i></div>
+        <% } %>
+        <div class="folio-visual-caption"><span>CREATIVE PRACTICE</span><span><%= category.toUpperCase() %></span></div>
+        <div class="folio-portrait-frame">
+          <% if (profileUser.profile.avatar) { %>
+            <img src="<%= profileUser.profile.avatar %>" alt="Portrait of <%= name %>" fetchpriority="high">
+          <% } else { %>
+            <span><%= name.charAt(0).toUpperCase() %></span>
+          <% } %>
+        </div>
+        <span class="folio-visual-index">POW / <%= String(pows.length).padStart(2, '0') %></span>
+      </div>
+    </section>
+
+    <% if (stats.totalPOWs > 0) { %>
+      <section class="folio-proof page-width" aria-label="Work highlights">
+        <div class="folio-proof-intro"><span>BUILT, SHIPPED, DOCUMENTED</span><p>Good work deserves good evidence.</p></div>
+        <div class="folio-stat"><strong><%= stats.totalPOWs %></strong><span>Projects</span></div>
+        <div class="folio-stat"><strong><%= stats.verifiedPOWs %></strong><span>Verified</span></div>
+        <div class="folio-stat"><strong><%= stats.totalBadges %></strong><span>Credentials</span></div>
+      </section>
+    <% } %>
+
+    <section class="folio-work page-width" id="work">
+      <div class="folio-section-heading">
+        <div><p class="folio-eyebrow">THE WORK</p><h2>Selected projects<em>.</em></h2><p class="folio-section-intro">A closer look at what I’ve made and the thinking behind it.</p></div>
+        <span class="folio-section-count"><%= String(pows.length).padStart(2, '0') %> / PROJECTS</span>
+      </div>
+      <% if (pows.length) { %>
+        <div class="folio-project-grid">
+          <% pows.forEach((project, index) => {
+            const type = (powTypeLabels || {})[project.type] || { label: project.type || 'Project', icon: 'fa-briefcase' };
+            const iconMap = { code:'fa-code', design:'fa-pen-nib', marketing:'fa-bullhorn', content:'fa-file-lines', video:'fa-film', photography:'fa-camera', music:'fa-music', research:'fa-flask', dao:'fa-cubes', community:'fa-people-group', project:'fa-layer-group', writing:'fa-file-lines', article:'fa-file-lines' };
+            const icon = iconMap[project.type] || 'fa-briefcase';
+          %>
+            <article class="folio-project <%= index === 0 ? 'folio-project-featured' : '' %>">
+              <div class="folio-project-image">
+                <% if (project.featuredImage) { %><img src="<%= project.featuredImage %>" alt="<%= project.title %> project" loading="lazy"><% } else { %><div class="folio-project-placeholder" aria-hidden="true"><span>0<%= index + 1 %></span><i class="fas <%= icon %>"></i></div><% } %>
+                <span class="folio-project-index">0<%= index + 1 %></span>
+              </div>
+              <div class="folio-project-content">
+                <div class="folio-project-overline"><span><i class="fas <%= icon %>"></i> <%= type.label || project.type %></span>
+                  <% if (project.verification && project.verification.status && project.verification.status !== 'self-reported') { %><span class="folio-verified"><i class="fas fa-circle-check"></i> Verified work</span><% } %>
+                </div>
+                <h3><%= project.title %></h3>
+                <p class="folio-project-description"><%= project.description %></p>
+                <% if (project.skills && project.skills.length) { %><div class="folio-skill-list"><% project.skills.forEach(skill => { %><span><%= skill %></span><% }); %></div><% } %>
+                <div class="folio-project-bottom">
+                  <span><%= new Date(project.startDate).toLocaleDateString('en-US', { month:'short', year:'numeric' }) %><% if (project.endDate) { %> to <%= new Date(project.endDate).toLocaleDateString('en-US', { month:'short', year:'numeric' }) %><% } %></span>
+                  <div><% if (project.proofLink) { %><a href="<%= project.proofLink %>" target="_blank" rel="noopener noreferrer">View proof <i class="fas fa-arrow-up-right-from-square"></i></a><% } %><% if (project.fileUrl) { %><a href="<%= project.fileUrl %>" target="_blank" rel="noopener noreferrer">Open file <i class="fas fa-arrow-up-right-from-square"></i></a><% } %></div>
+                </div>
+              </div>
+            </article>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="folio-empty"><span>01</span><div><p class="folio-eyebrow"><%= isOwner ? 'YOUR NEXT CHAPTER' : 'IN THE MAKING' %></p><h3><%= isOwner ? 'Your first project starts here.' : 'New work is on the way.' %></h3><p><%= isOwner ? 'Add a project to turn this portfolio into a record of what you can do.' : 'Check back soon for projects, outcomes, and proof.' %></p></div><% if (isOwner) { %><a class="folio-btn folio-btn-primary" href="/pow/add">Add a project <i class="fas fa-arrow-right"></i></a><% } %></div>
+      <% } %>
+    </section>
+
+    <section class="folio-about" id="about">
+      <div class="page-width folio-about-layout">
+        <div class="folio-about-heading"><p class="folio-eyebrow">A LITTLE CONTEXT</p><span>01 / ABOUT</span></div>
+        <div class="folio-about-copy"><h2>Curiosity makes<br>the work better<em>.</em></h2><p><%= fullBio %></p>
+          <div class="folio-about-facts"><span><i class="fas fa-layer-group"></i><%= category %></span><% if (profileUser.profile.location) { %><span><i class="fas fa-location-dot"></i><%= profileUser.profile.location %></span><% } %><% if (profileUser.zeroAuthDAO && profileUser.zeroAuthDAO.bnsName) { %><span><i class="fas fa-globe"></i><%= profileUser.zeroAuthDAO.bnsName %></span><% } %></div>
+          <% if (allSkills.length) { %><div class="folio-about-skills"><span>AREAS I WORK IN</span><div><% allSkills.forEach(skill => { %><span><%= skill %></span><% }); %></div></div><% } %>
+        </div>
+      </div>
+    </section>
+
+    <section class="folio-contact page-width" id="contact">
+      <div class="folio-contact-copy"><p class="folio-eyebrow">HAVE SOMETHING GOOD IN MIND?</p><h2>Let’s make it real<em>.</em></h2><p>Open to thoughtful projects, good people, and interesting problems.</p></div>
+      <div class="folio-contact-links">
+        <% socialLinks.forEach(link => { let href = profileUser.profile[link.key]; if (!href.startsWith('http') && link.base) href = link.base + href; %><a href="<%= href %>" target="_blank" rel="noopener noreferrer"><i class="<%= link.icon %>"></i><span><%= link.label %></span><i class="fas fa-arrow-up-right-from-square"></i></a><% }); %>
+        <% if (profileUser.profile.website) { %><a href="<%= profileUser.profile.website %>" target="_blank" rel="noopener noreferrer"><i class="fas fa-globe"></i><span>Website</span><i class="fas fa-arrow-up-right-from-square"></i></a><% } %>
+        <% if (profileUser.customLinks) { profileUser.customLinks.forEach(link => { %><a href="<%= link.url %>" target="_blank" rel="noopener noreferrer"><i class="fas fa-<%= link.icon || 'link' %>"></i><span><%= link.title %></span><i class="fas fa-arrow-up-right-from-square"></i></a><% }); } %>
+        <% if (!socialLinks.length && !profileUser.profile.website && !(profileUser.customLinks && profileUser.customLinks.length)) { %><p class="folio-contact-empty">This creator hasn’t added contact links yet.</p><% } %>
+      </div>
+    </section>
+  </main>
+
+  <footer class="folio-footer page-width"><a href="/" class="folio-brand"><img src="/logo.jpg" alt="" class="folio-logo"> <span>POWtfolio</span></a><span>Proof of work, made personal.</span><a href="#top" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">Back to top <i class="fas fa-arrow-up"></i></a></footer>
+  <script src="/js/main.js"></script>
+</body>
+</html>

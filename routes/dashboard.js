@@ -6,6 +6,7 @@ const User = require('../models/User');
 const POW = require('../models/POW');
 const Badge = require('../models/Badge');
 const { fetchWalletReputation } = require('../utils/zeroauth');
+const { applyPortfolioDefaults } = require('../utils/portfolioDefaults');
 
 const UPLOAD_DIR = process.env.VERCEL ? '/tmp/uploads' : path.join(__dirname, '..', 'public', 'uploads');
 
@@ -54,6 +55,11 @@ router.get('/', requireAuth, async (req, res) => {
 router.get('/profile', requireAuth, async (req, res) => {
   try {
     const user = await User.findById(req.session.user.id);
+    applyPortfolioDefaults(user);
+    if ((user.profile.bio || '').startsWith('I’m building in public.')) {
+      user.profile.bio = 'Building my path in Web3 through community, growth, and thoughtful conversations. Interested in community management, growth marketing, and contributor opportunities. Open to internships and collaborations.';
+      if (user.skillCategory === 'other') user.skillCategory = 'community';
+    }
     res.render('dashboard/profile', { title: 'Profile Settings', user, success: null, error: null });
   } catch (error) {
     console.error(error);
@@ -108,8 +114,10 @@ router.post('/profile', requireAuth, avatarUpload.fields([
     } = req.body;
 
     const user = await User.findById(req.session.user.id);
+    applyPortfolioDefaults(user);
 
     user.profile.fullName  = fullName  || '';
+    user.starterProfile = true;
     user.profile.bio       = bio       || '';
     user.profile.location  = location  || '';
     user.profile.website   = website   || '';
@@ -131,7 +139,7 @@ router.post('/profile', requireAuth, avatarUpload.fields([
     user.accentColor = accentColor || 'purple';
     const allowedThemes = ['studio', 'editorial', 'ocean', 'garden', 'midnight', 'canvas'];
     user.profile.theme = allowedThemes.includes(theme) ? theme : 'studio';
-    user.profile.accentHex = /^#[0-9a-fA-F]{6}$/.test(accentHex || '') ? accentHex : '#ee795d';
+    user.profile.accentHex = /^#[0-9a-fA-F]{6}$/.test(accentHex || '') ? accentHex : '#3978d4';
 
     // Build custom links from parallel arrays
     const titles = linkTitle ? (Array.isArray(linkTitle) ? linkTitle : [linkTitle]) : [];

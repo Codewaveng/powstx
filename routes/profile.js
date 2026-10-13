@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const POW = require('../models/POW');
 const Badge = require('../models/Badge');
+const { applyPortfolioDefaults } = require('../utils/portfolioDefaults');
 
 const skillCategoryLabels = {
   webdev:      'Web Developer',
@@ -53,6 +54,12 @@ router.get('/:username', async (req, res) => {
       return res.status(404).render('404', { title: 'User Not Found' });
     }
 
+    applyPortfolioDefaults(profileUser);
+    if ((profileUser.profile.bio || '').startsWith('I’m building in public.')) {
+      profileUser.profile.bio = 'Building my path in Web3 through community, growth, and thoughtful conversations. Interested in community management, growth marketing, and contributor opportunities. Open to internships and collaborations.';
+      if (profileUser.skillCategory === 'other') profileUser.skillCategory = 'community';
+    }
+
     const pows = await POW.find({ user: profileUser._id, isPublic: true }).sort({ startDate: -1 });
     const badges = await Badge.find({ user: profileUser._id });
 
@@ -68,7 +75,7 @@ router.get('/:username', async (req, res) => {
 
     const isOwner = req.session.user && req.session.user.id === profileUser._id.toString();
 
-    res.render('profile/view', {
+    res.render('profile/portfolio', {
       title: `${profileUser.profile.fullName || profileUser.username} | POWtfolio`,
       profileUser,
       pows,

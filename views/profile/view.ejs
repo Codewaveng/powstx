@@ -12,6 +12,7 @@
   <meta property="og:url" content="<%= (process.env.BASE_URL || 'http://localhost:3000').replace(/\/$/, '') %>/<%= profileUser.username %>">
   <meta name="twitter:card" content="summary">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/profile.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -19,7 +20,7 @@
 const accent = profileUser.accentColor || 'purple';
 const accentClass = 'pa-' + accent;
 const theme = ['studio', 'editorial', 'ocean', 'garden', 'midnight', 'canvas'].includes(profileUser.profile.theme) ? profileUser.profile.theme : 'studio';
-const customAccent = /^#[0-9a-fA-F]{6}$/.test(profileUser.profile.accentHex || '') ? profileUser.profile.accentHex : '#ee795d';
+const customAccent = /^#[0-9a-fA-F]{6}$/.test(profileUser.profile.accentHex || '') ? profileUser.profile.accentHex : '#3978d4';
 const catLabels = skillCategoryLabels || {};
 const catLabel  = catLabels[profileUser.skillCategory] || 'Creator';
 
@@ -53,11 +54,42 @@ function powIcon(type) {
         </a>
       <% } %>
     </div>
+    <div class="portfolio-topbar">
+      <a class="portfolio-wordmark" href="/">POWtfolio<span>.</span></a>
+      <nav aria-label="Portfolio navigation">
+        <a href="#work">Work</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+    <div class="portfolio-hero-copy">
+      <span class="portfolio-hero-kicker"><%= catLabel %> <span aria-hidden="true">/</span> PROOF OF WORK</span>
+      <h1><%= profileUser.profile.fullName || profileUser.username %></h1>
+      <p><%= profileUser.profile.bio || 'A collection of selected work, projects, and proof.' %></p>
+      <a class="portfolio-hero-link" href="#work">Explore selected work <i class="fas fa-arrow-down"></i></a>
+      <% if (profileUser.profile.avatar) { %>
+        <img class="portfolio-portrait" src="<%= profileUser.profile.avatar %>" alt="Portrait of <%= profileUser.profile.fullName || profileUser.username %>">
+      <% } %>
+    </div>
   </div>
 
   <!-- ====== MAIN CARD ====== -->
   <div class="profile-content">
+    <% if (stats.totalPOWs > 0) { %>
+    <section class="portfolio-proof-strip" aria-label="Portfolio highlights">
+      <div class="portfolio-proof-item"><strong><%= stats.totalPOWs %></strong><span>Projects documented</span></div>
+      <div class="portfolio-proof-item"><strong><%= stats.verifiedPOWs %></strong><span>Verified projects</span></div>
+      <div class="portfolio-proof-item"><strong><%= stats.totalBadges %></strong><span>Proof badges earned</span></div>
+      <div class="portfolio-proof-note"><span class="portfolio-kicker">THE WORK, WITH RECEIPTS</span><span>Every project has a story. Here is the evidence behind it.</span></div>
+    </section>
+    <% } %>
     <div class="profile-main-card">
+      <section class="portfolio-about" id="about">
+        <span class="portfolio-kicker">ABOUT THE CREATOR</span>
+        <h2>The person and process behind the work.</h2>
+        <p><%= profileUser.profile.bio || 'I use this space to share selected projects, the thinking behind them, and the proof of what I have built.' %></p>
+        <% if (profileUser.profile.location) { %><span class="portfolio-location"><i class="fas fa-location-dot"></i> <%= profileUser.profile.location %></span><% } %>
+      </section>
 
       <!-- Avatar -->
       <div class="profile-avatar-wrap">
@@ -160,9 +192,9 @@ function powIcon(type) {
     ];
     const activeSocials = socials.filter(s => profileUser.profile[s.key]);
     %>
-    <% if (activeSocials.length > 0) { %>
-      <div class="social-section">
-        <h3>Connect</h3>
+    <% if (activeSocials.length > 0 || profileUser.profile.website) { %>
+      <div class="social-section" id="connect">
+        <h3>Let’s make something meaningful.</h3>
         <div class="social-icons-row">
           <% activeSocials.forEach(s => {
             let href = profileUser.profile[s.key];
@@ -187,7 +219,7 @@ function powIcon(type) {
     <!-- ====== CUSTOM LINKS ====== -->
     <% if (profileUser.customLinks && profileUser.customLinks.length > 0) { %>
       <div class="custom-links-section">
-        <h3>Links</h3>
+        <h3>More places to find my work</h3>
         <div class="custom-link-list">
           <% profileUser.customLinks.forEach(link => { %>
             <a href="<%= link.url %>" target="_blank" rel="noopener noreferrer" class="custom-link-item">
@@ -206,12 +238,15 @@ function powIcon(type) {
 
     <!-- ====== PROOF OF WORK ====== -->
     <% if (pows.length > 0) { %>
-      <div class="pow-public-section">
-        <h2>
-          <i class="fas fa-clipboard-check" style="color:var(--purple);"></i>
-          Portfolio &amp; Proof of Work
-          <span style="font-size:0.85rem;font-weight:500;color:var(--gray-500);">(<%= pows.length %>)</span>
-        </h2>
+      <div class="pow-public-section" id="work">
+        <div class="portfolio-heading">
+          <div>
+            <span class="portfolio-kicker">SELECTED WORK</span>
+            <h2>Projects &amp; proof <span class="portfolio-count"><%= pows.length %></span></h2>
+            <p>Work, outcomes, and proof collected in one place.</p>
+          </div>
+          <span class="portfolio-index">01 / WORK</span>
+        </div>
         <div class="pow-cards">
           <% pows.forEach(pow => {
             const icon = powIcon(pow.type);
@@ -270,19 +305,19 @@ function powIcon(type) {
           <% }); %>
         </div>
       </div>
-    <% } else if (isOwner) { %>
-      <div class="pow-public-section">
+    <% } else { %>
+      <div class="pow-public-section" id="work">
         <div class="empty-state">
-          <div class="empty-icon"><i class="fas fa-plus-circle"></i></div>
-          <h3>No POWs yet</h3>
-          <p>Add your first proof of work to start building your portfolio</p>
-          <a href="/pow/add" class="btn btn-primary"><i class="fas fa-plus"></i> Add First POW</a>
+          <div class="portfolio-kicker"><%= isOwner ? 'YOUR PORTFOLIO STARTS HERE' : 'PORTFOLIO IN PROGRESS' %></div>
+          <h3><%= isOwner ? 'Make your first project the opening story.' : 'New work is taking shape.' %></h3>
+          <p><%= isOwner ? 'Add a project, show the outcome, and give people a clear way to explore your work.' : 'Check back soon to see the latest projects and proof of work.' %></p>
+          <% if (isOwner) { %><a href="/pow/add" class="btn btn-primary"><i class="fas fa-plus"></i> Add a project</a><% } %>
         </div>
       </div>
     <% } %>
 
     <!-- ====== PROFILE FOOTER ====== -->
-    <div class="profile-footer-bar">
+    <div class="profile-footer-bar" id="contact">
       <p>Powered by</p>
       <a href="/" class="create-yours-link">
         <i class="fas fa-bolt"></i> Create your POWtfolio | Free

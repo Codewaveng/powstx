@@ -47,7 +47,7 @@ const userSchema = new mongoose.Schema({
   },
   skillCategory: {
     type: String,
-    default: 'other',
+    default: 'community',
     enum: ['webdev', 'mobiledev', 'design', 'marketing', 'content', 'video', 'photography', 'music', 'writing', 'data', 'devops', 'web3', 'community', 'research', 'other']
   },
   skills: [String],
@@ -79,6 +79,7 @@ const userSchema = new mongoose.Schema({
     verified: { type: Boolean, default: false }
   },
   profileViews: { type: Number, default: 0 },
+  starterProfile: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 });
 

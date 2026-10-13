@@ -17,7 +17,7 @@ router.get('/demo', (req, res) => {
       avatar: '/demo-avatar.svg',
       coverImage: '/demo-cover.svg',
       theme: 'editorial',
-      accentHex: '#c46f58',
+      accentHex: '#3978d4',
       location: 'Lagos, Nigeria',
       website: 'https://example.com',
       github: '', twitter: '', linkedin: '', instagram: '', facebook: '', youtube: '',
@@ -56,9 +56,9 @@ router.get('/demo', (req, res) => {
       verification: { status: 'self-reported' }
     }
   ];
-  res.render('profile/view', {
-    title: 'Alex Morgan | POWtfolio Demo', profileUser, pows, badges: [],
-    stats: { totalPOWs: 12, verifiedPOWs: 8, totalBadges: 4, reputation: 860 },
+  res.render('profile/portfolio', {
+    title: 'Alex Morgan | Portfolio', profileUser, pows, badges: [],
+    stats: { totalPOWs: pows.length, verifiedPOWs: 2, totalBadges: 4, reputation: 860 },
     isOwner: false,
     skillCategoryLabels: { design: 'Product Designer' },
     powTypeLabels: {

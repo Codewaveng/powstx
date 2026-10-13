@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const { applyPortfolioDefaults } = require('../utils/portfolioDefaults');
 
 // Register page
 router.get('/register', (req, res) => {
@@ -45,7 +46,15 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    const user = new User({ username, email: email.toLowerCase().trim(), password });
+    const user = new User({
+      username,
+      email: email.toLowerCase().trim(),
+      password
+    });
+    applyPortfolioDefaults(user);
+    user.profile.bio = 'Building my path in Web3 through community, growth, and thoughtful conversations. Interested in community management, growth marketing, and contributor opportunities. Open to internships and collaborations.';
+    user.skillCategory = 'community';
+    user.starterProfile = true;
     await user.save();
 
     req.session.user = {
