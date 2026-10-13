@@ -218,6 +218,120 @@ body.portfolio-site.theme-garden { --folio-ink:#2b3c2d; --folio-muted:#6c7d6c; -
 body.portfolio-site.theme-garden .folio-project { border-radius:22px 7px; }
 body.portfolio-site.theme-midnight { --folio-ink:#edf3fb; --folio-muted:#aab7c9; --folio-paper:#121a27; --folio-surface:#1c2838; --folio-line:#344256; --folio-soft:#26374d; color:var(--folio-ink); }
 body.portfolio-site.theme-midnight .folio-about { background:#1b2736; }
+
+/* Portfolio cards and compact navigation refinements */
+.folio-project {
+  border-radius:14px;
+  box-shadow:0 10px 28px rgba(24,48,78,.06);
+}
+.folio-project-image { aspect-ratio:1.55; }
+.folio-project-content { padding:24px 26px 0; }
+.folio-project h3 { overflow-wrap:anywhere; }
+.folio-project-description { overflow-wrap:anywhere; }
+.folio-project-overline { align-items:flex-start; }
+.folio-project-overline>span { min-width:0; overflow-wrap:anywhere; }
+.folio-project-bottom { align-items:flex-start; }
+
+@media(max-width:900px) and (min-width:641px) {
+  .folio-project-grid { gap:18px; }
+  .folio-project-featured { grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr); }
+  .folio-project-featured .folio-project-image { min-height:280px; }
+  .folio-project-content { padding:21px 20px 0; }
+  .folio-project-featured .folio-project-content { padding:clamp(22px,3vw,36px); }
+}
+
+@media(max-width:640px) {
+  .folio-header {
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"brand cta" "nav nav";
+    gap:10px 12px;
+    min-height:0;
+    padding:12px 0 11px;
+  }
+  .folio-brand { grid-area:brand; min-width:0; gap:8px; font-size:1rem; }
+  .folio-brand span { overflow:hidden; text-overflow:ellipsis; }
+  .folio-logo { width:36px; height:36px; flex-basis:36px; border-radius:9px; }
+  .folio-nav {
+    grid-area:nav;
+    display:flex;
+    justify-content:space-between;
+    gap:5px;
+    width:100%;
+    margin:0;
+    padding:4px;
+    border:1px solid var(--folio-line);
+    border-radius:9px;
+    background:var(--folio-surface);
+  }
+  .folio-nav a {
+    display:flex;
+    min-height:34px;
+    flex:1 1 0;
+    align-items:center;
+    justify-content:center;
+    padding:0 6px;
+    border-radius:6px;
+    font-size:.73rem;
+  }
+  .folio-nav a:active { background:var(--folio-soft); }
+  .folio-nav-cta {
+    grid-area:cta;
+    min-height:36px;
+    justify-self:end;
+    gap:6px;
+    padding:0 10px;
+    font-size:.68rem;
+    white-space:nowrap;
+  }
+  .folio-project-grid { grid-template-columns:minmax(0,1fr); gap:16px; }
+  .folio-project {
+    display:flex;
+    min-width:0;
+    flex-direction:column;
+    border-radius:13px;
+    box-shadow:0 8px 24px rgba(24,48,78,.07);
+  }
+  .folio-project-featured { grid-column:auto; }
+  .folio-project-image,
+  .folio-project-featured .folio-project-image {
+    width:100%;
+    min-height:0;
+    aspect-ratio:1.48;
+  }
+  .folio-project-content,
+  .folio-project-featured .folio-project-content { padding:19px 17px 0; }
+  .folio-project-overline { gap:8px; font-size:.59rem; letter-spacing:.09em; }
+  .folio-project h3 { margin-top:12px; font-size:1.34rem; line-height:1.18; }
+  .folio-project-description { flex:initial; margin-top:9px; font-size:.84rem; line-height:1.65; }
+  .folio-skill-list { gap:6px; }
+  .folio-project-bottom,
+  .folio-project-featured .folio-project-bottom {
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-top:15px;
+    padding:12px 0 15px;
+    font-size:.69rem;
+  }
+  .folio-project-bottom>div { gap:13px; }
+  .folio-project-bottom a { min-height:28px; font-size:.72rem; }
+  .folio-section-heading { align-items:flex-start; }
+  .folio-section-count { padding:0; }
+}
+
+@media(max-width:390px) {
+  .folio-header { gap:9px 8px; }
+  .folio-brand { font-size:.92rem; }
+  .folio-logo { width:33px; height:33px; flex-basis:33px; }
+  .folio-nav a { min-height:32px; font-size:.68rem; }
+  .folio-nav-cta { min-height:34px; padding:0 8px; font-size:.64rem; }
+  .folio-project-content,
+  .folio-project-featured .folio-project-content { padding:17px 15px 0; }
+  .folio-project-overline { font-size:.55rem; }
+  .folio-project h3 { font-size:1.22rem; }
+  .folio-project-bottom>div { flex-wrap:wrap; }
+}
 body.portfolio-site.theme-midnight .folio-about-skills { border-color:var(--folio-line); }
 body.portfolio-site.theme-midnight .folio-about-skills { border-color:var(--folio-line); }
 body.portfolio-site.theme-midnight .folio-about-skills>div>span { border-color:var(--folio-line); background:var(--folio-surface); color:var(--folio-muted); }
