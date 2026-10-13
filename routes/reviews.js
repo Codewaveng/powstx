@@ -4,7 +4,8 @@ const User = require('../models/User');
 const Review = require('../models/Review');
 
 router.post('/:username/reviews', async (req, res) => {
-  const username = String(req.params.username || '').toLowerCase();
+  let username = String(req.params.username || '').trim();
+  try { username = decodeURIComponent(username); } catch (_) {}
   const name = String(req.body.name || '').trim();
   const message = String(req.body.message || '').trim();
   const rating = Number(req.body.rating);
@@ -15,8 +16,8 @@ router.post('/:username/reviews', async (req, res) => {
   }
 
   try {
-    const subject = await User.findOne({ username });
-    if (!subject) return res.status(404).render('404', { title: 'User Not Found' });
+    const subject = await User.findOne({ username: new RegExp(`^${username.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') });
+    if (!subject) return res.redirect(`${redirectTo}?review=unavailable#reviews`);
     await Review.create({ subject: subject._id, name, message, rating });
     res.redirect(`${redirectTo}?review=submitted#reviews`);
   } catch (error) {

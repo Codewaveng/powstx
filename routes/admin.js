@@ -6,14 +6,28 @@ const Review = require('../models/Review');
 
 router.get('/', async (req, res) => {
   try {
+    const q = String(req.query.q || '').trim().slice(0, 100);
+    const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const pattern = q ? new RegExp(escaped, 'i') : null;
     const [totalUsers, totalPOWs, pendingReviews, approvedReviews] = await Promise.all([
       User.countDocuments(), POW.countDocuments(),
       Review.find({ status: 'pending' }).populate('subject', 'username profile.fullName').sort({ createdAt: 1 }),
       Review.countDocuments({ status: 'approved' })
     ]);
+    const matchingUsers = pattern ? await User.find({
+      $or: [{ username: pattern }, { email: pattern }, { 'profile.fullName': pattern }]
+    }).select('username email profile.fullName createdAt').sort({ createdAt: -1 }).limit(100) : null;
+    const ownerIds = pattern ? matchingUsers.map(user => user._id) : null;
+    const powFilter = pattern
+      ? { $or: [{ title: pattern }, { description: pattern }, { skills: pattern }, { user: { $in: ownerIds } }] }
+      : {};
+    const [users, pows] = await Promise.all([
+      matchingUsers || User.find({}).select('username email profile.fullName createdAt').sort({ createdAt: -1 }).limit(100),
+      POW.find(powFilter).populate('user', 'username profile.fullName').sort({ createdAt: -1 }).limit(100)
+    ]);
     res.render('admin/index', {
       title: 'Admin', totalUsers, totalPOWs, pendingReviews, approvedReviews,
-      notice: req.query.notice || ''
+      notice: req.query.notice || '', q, users, pows
     });
   } catch (error) {
     console.error('Admin page error:', error);

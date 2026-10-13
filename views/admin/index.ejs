@@ -5,7 +5,7 @@
   <title><%= title %> | POWtfolio</title><link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    .admin-wrap{max-width:1050px;margin:48px auto;padding:0 22px 64px}.admin-wrap h1{margin-bottom:8px}.admin-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:28px 0 42px}.admin-stat,.review-row{padding:22px;border:1px solid #e5e7eb;border-radius:14px;background:#fff}.admin-stat strong{display:block;font-size:2rem}.review-list{display:grid;gap:14px}.review-row header{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}.review-stars{color:#f0a126}.review-message{white-space:pre-wrap;line-height:1.6}.review-actions{display:flex;gap:10px}.review-actions form{display:inline}.review-actions button{border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:700}.approve{background:#e6f5ec;color:#176d37}.reject{background:#fff0ee;color:#a33125}.admin-note{padding:12px 16px;margin:18px 0;border-radius:8px;background:#eef4ff}.admin-empty{color:#667085;padding:20px 0}@media(max-width:620px){.admin-stats{grid-template-columns:1fr}}
+    .admin-wrap{max-width:1120px;margin:48px auto;padding:0 22px 64px}.admin-wrap h1{margin-bottom:8px}.admin-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:28px 0 42px}.admin-stat,.review-row,.data-card{padding:22px;border:1px solid #e5e7eb;border-radius:14px;background:#fff}.admin-stat strong{display:block;font-size:2rem}.review-list,.data-list{display:grid;gap:14px}.review-row header,.data-card header{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}.review-stars{color:#f0a126}.review-message{white-space:pre-wrap;line-height:1.6}.review-actions{display:flex;gap:10px}.review-actions form{display:inline}.review-actions button{border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:700}.approve{background:#e6f5ec;color:#176d37}.reject{background:#fff0ee;color:#a33125}.admin-note{padding:12px 16px;margin:18px 0;border-radius:8px;background:#eef4ff}.admin-empty{color:#667085;padding:20px 0}.admin-search{display:flex;gap:10px;margin:20px 0 28px}.admin-search input{flex:1;min-width:0;padding:12px 14px;border:1px solid #d0d5dd;border-radius:8px;font:inherit}.admin-search button{padding:0 20px;border:0;border-radius:8px;background:#252d3a;color:white;font-weight:700}.admin-lists{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:28px 0 44px}.data-card{padding:16px}.data-card p{margin:7px 0;color:#667085}.data-card small{color:#667085}.admin-section-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px}.admin-section-title span{color:#667085;font-size:.86rem}@media(max-width:720px){.admin-lists{grid-template-columns:1fr}}@media(max-width:620px){.admin-stats{grid-template-columns:1fr}.admin-search{flex-wrap:wrap}.admin-search button{min-height:44px}}
   </style>
 </head>
 <body><main class="admin-wrap">
@@ -17,6 +17,22 @@
     <div class="admin-stat"><span>Total proof of work</span><strong><%= totalPOWs %></strong></div>
     <div class="admin-stat"><span>Approved reviews</span><strong><%= approvedReviews %></strong></div>
   </section>
+  <h2>Users and proof of work</h2>
+  <form class="admin-search" method="get" action="/admin">
+    <input type="search" name="q" value="<%= q %>" placeholder="Search users by name, username, or email; search POW by title or skill" aria-label="Search users and proof of work">
+    <button type="submit">Search</button>
+    <% if (q) { %><a class="nav-link" href="/admin">Clear</a><% } %>
+  </form>
+  <div class="admin-lists">
+    <section><div class="admin-section-title"><h2>Users</h2><span>Showing <%= users.length %><%= totalUsers > users.length ? ' of ' + totalUsers : '' %></span></div>
+      <% if (!users.length) { %><p class="admin-empty">No matching users.</p><% } %>
+      <div class="data-list"><% users.forEach(account => { %><article class="data-card"><header><strong><%= account.profile.fullName || account.username %></strong><a href="/<%= encodeURIComponent(account.username) %>" target="_blank" rel="noopener">View profile</a></header><p>@<%= account.username %> · <%= account.email %></p><small>Joined <%= new Date(account.createdAt).toLocaleDateString() %></small></article><% }); %></div>
+    </section>
+    <section><div class="admin-section-title"><h2>POW entries</h2><span>Showing <%= pows.length %><%= totalPOWs > pows.length ? ' of ' + totalPOWs : '' %></span></div>
+      <% if (!pows.length) { %><p class="admin-empty">No matching POW entries.</p><% } %>
+      <div class="data-list"><% pows.forEach(pow => { %><article class="data-card"><header><strong><%= pow.title %></strong><small><%= pow.type %></small></header><p><%= pow.user ? (pow.user.profile.fullName || pow.user.username) + ' (@' + pow.user.username + ')' : 'Creator unavailable' %></p><small><%= pow.isPublic ? 'Public' : 'Private' %> · Added <%= new Date(pow.createdAt).toLocaleDateString() %></small></article><% }); %></div>
+    </section>
+  </div>
   <h2>Pending reviews <span>(<%= pendingReviews.length %>)</span></h2>
   <% if (!pendingReviews.length) { %><p class="admin-empty">No reviews need approval right now.</p><% } %>
   <section class="review-list">

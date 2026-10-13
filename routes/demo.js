@@ -4,6 +4,7 @@ const router = express.Router();
 router.get('/demo', (req, res) => {
   const profileUser = {
     username: 'powtfolio',
+    isDemo: true,
     profile: {
       fullName: 'POWtfolio',
       bio: 'A portfolio platform for Web3 builders, community leads, growth marketers, and emerging contributors. Bring your projects, contributions, and proof together in one link.',

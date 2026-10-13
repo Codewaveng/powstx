@@ -156,13 +156,13 @@ const socialLinks = [
             <article class="folio-review-card"><div class="folio-review-card-top"><strong><%= review.name %></strong><span class="folio-review-stars" aria-label="<%= review.rating %> out of 5 stars"><%= '★'.repeat(review.rating) %><span><%= '★'.repeat(5-review.rating) %></span></span></div><p><%= review.message %></p><time datetime="<%= review.createdAt.toISOString() %>"><%= new Date(review.createdAt).toLocaleDateString() %></time></article>
           <% }); } else { %><p class="folio-review-empty">No recommendations yet. Be the first to share your experience.</p><% } %>
         </div>
-        <form class="folio-review-form" method="post" action="/<%= encodeURIComponent(profileUser.username) %>/reviews">
+        <% if (!profileUser.isDemo) { %><form class="folio-review-form" method="post" action="/<%= encodeURIComponent(profileUser.username) %>/reviews">
           <h3>Leave a review</h3><p>Your review will be public after it is approved.</p>
           <label for="reviewName">Your name</label><input id="reviewName" name="name" maxlength="80" required>
           <label for="reviewRating">Rating</label><select id="reviewRating" name="rating" required><option value="">Choose a rating</option><option value="5">★★★★★ — Excellent</option><option value="4">★★★★ — Very good</option><option value="3">★★★ — Good</option><option value="2">★★ — Fair</option><option value="1">★ — Needs improvement</option></select>
           <label for="reviewMessage">Your review</label><textarea id="reviewMessage" name="message" rows="5" maxlength="1200" required placeholder="What was it like working together?"></textarea>
           <button class="folio-btn folio-btn-primary" type="submit">Send for approval <i class="fas fa-arrow-right"></i></button>
-        </form>
+        </form><% } else { %><p class="folio-review-empty">Reviews are available on creator profiles. This is a sample portfolio.</p><% } %>
       </div>
     </section>
 

@@ -89,7 +89,7 @@ router.get('/:username', async (req, res) => {
       badges,
       reviews,
       stats,
-      reviewToast: ({ submitted: { msg: 'Thanks! Your review was sent for approval.', type: 'success' }, invalid: { msg: 'Please check your name, rating, and review.', type: 'error' }, error: { msg: 'We could not submit your review. Please try again.', type: 'error' } })[req.query.review] || null,
+      reviewToast: ({ submitted: { msg: 'Thanks! Your review was sent for approval.', type: 'success' }, invalid: { msg: 'Please check your name, rating, and review.', type: 'error' }, unavailable: { msg: 'Reviews can only be submitted for an active creator profile.', type: 'error' }, error: { msg: 'We could not submit your review. Please try again.', type: 'error' } })[req.query.review] || null,
       isOwner,
       skillCategoryLabels,
       powTypeLabels
