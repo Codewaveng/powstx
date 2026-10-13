@@ -29,6 +29,10 @@ function requireAuth(req, res, next) {
 router.get('/', requireAuth, async (req, res) => {
   try {
     const user = await User.findById(req.session.user.id);
+    if (!user) {
+      req.session.destroy(() => res.redirect('/auth/login'));
+      return;
+    }
     const pows = await POW.find({ user: req.session.user.id })
       .sort({ createdAt: -1 })
       .limit(10);

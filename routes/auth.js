@@ -3,6 +3,16 @@ const router = express.Router();
 const User = require('../models/User');
 const { applyPortfolioDefaults } = require('../utils/portfolioDefaults');
 
+function explainAuthError(error, action) {
+  if (error?.code === 11000) return 'That username or email is already in use.';
+  const message = String(error?.message || '').toLowerCase();
+  if (error?.name === 'MongooseServerSelectionError' || message.includes('querysrv') || error?.code === 'ETIMEOUT') {
+    return 'The database is unavailable right now. Check the MongoDB connection and try again.';
+  }
+  if (error?.name === 'ValidationError') return 'Please check your username and account details, then try again.';
+  return `${action} failed. Please try again.`;
+}
+
 // Register page
 router.get('/register', (req, res) => {
   if (req.session.user) return res.redirect('/dashboard');
@@ -74,7 +84,7 @@ router.post('/register', async (req, res) => {
     console.error(error);
     res.render('auth/register', {
       title: 'Register',
-      error: 'Registration failed. Please try again.'
+      error: explainAuthError(error, 'Registration')
     });
   }
 });
@@ -132,7 +142,7 @@ router.post('/login', async (req, res) => {
     console.error(error);
     res.render('auth/login', {
       title: 'Login',
-      error: 'Login failed. Please try again.'
+      error: explainAuthError(error, 'Login')
     });
   }
 });
