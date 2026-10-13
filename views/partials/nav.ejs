@@ -12,6 +12,7 @@
     </button>
 
     <div class="nav-links" id="navLinks">
+      <a href="/#about" class="nav-link">About</a>
       <% if (typeof user !== 'undefined' && user) { %>
         <a href="/dashboard" class="nav-link <%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'active' : '' %>">
           <i class="fas fa-th-large"></i> Dashboard

@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Profile Settings — POWtfolio</title>
+  <title>Profile Settings | POWtfolio</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -34,6 +36,39 @@
 
     <form method="POST" action="/dashboard/profile" enctype="multipart/form-data">
 
+      <div class="settings-card appearance-card">
+        <div class="settings-card-head"><i class="fas fa-swatchbook"></i><h2>Make it yours</h2></div>
+        <div class="settings-card-body">
+          <div class="form-group">
+            <label class="form-label">Choose a look</label>
+            <div class="theme-picker" role="radiogroup" aria-label="Portfolio theme">
+              <% const selectedTheme = user.profile.theme || 'studio'; %>
+              <label class="theme-option theme-option-studio"><input type="radio" name="theme" value="studio" <%= selectedTheme==='studio'?'checked':'' %>><span class="theme-swatch"></span><b>Studio</b><small>Warm &amp; playful</small></label>
+              <label class="theme-option theme-option-editorial"><input type="radio" name="theme" value="editorial" <%= selectedTheme==='editorial'?'checked':'' %>><span class="theme-swatch"></span><b>Editorial</b><small>Calm &amp; classic</small></label>
+              <label class="theme-option theme-option-ocean"><input type="radio" name="theme" value="ocean" <%= selectedTheme==='ocean'?'checked':'' %>><span class="theme-swatch"></span><b>Ocean</b><small>Fresh &amp; focused</small></label>
+              <label class="theme-option theme-option-garden"><input type="radio" name="theme" value="garden" <%= selectedTheme==='garden'?'checked':'' %>><span class="theme-swatch"></span><b>Garden</b><small>Soft &amp; natural</small></label>
+              <label class="theme-option theme-option-midnight"><input type="radio" name="theme" value="midnight" <%= selectedTheme==='midnight'?'checked':'' %>><span class="theme-swatch"></span><b>Midnight</b><small>Bold &amp; modern</small></label>
+              <label class="theme-option theme-option-canvas"><input type="radio" name="theme" value="canvas" <%= selectedTheme==='canvas'?'checked':'' %>><span class="theme-swatch"></span><b>Canvas</b><small>Clean &amp; minimal</small></label>
+            </div>
+          </div>
+          <div class="form-group accent-control">
+            <div><label class="form-label" for="accentHex">Your highlight color</label><p class="form-hint">Use a color that feels like your brand.</p></div>
+            <input type="color" id="accentHex" name="accentHex" value="<%= user.profile.accentHex || '#ee795d' %>" aria-label="Choose highlight color">
+          </div>
+          <div class="form-group cover-upload-group">
+            <label class="form-label" for="coverImageFile">Profile cover</label>
+            <% if (user.profile.coverImage) { %>
+              <div class="cover-current-preview"><img id="coverPreview" src="<%= user.profile.coverImage %>" alt="Current profile cover"></div>
+            <% } else { %>
+              <div class="cover-current-preview cover-preview-empty" id="coverPreviewEmpty"><i class="fas fa-image"></i><span>Your cover image will appear at the top of your profile.</span></div>
+              <img class="cover-current-preview" id="coverPreview" alt="Selected profile cover preview" style="display:none;">
+            <% } %>
+            <div class="cover-upload-actions"><label class="btn btn-secondary btn-sm" for="coverImageFile"><i class="fas fa-upload"></i> <%= user.profile.coverImage ? 'Change cover' : 'Upload a cover' %></label><input type="file" id="coverImageFile" name="coverImage" accept="image/jpeg,image/png,image/webp,image/gif" hidden><span class="form-hint">JPG, PNG, WEBP or GIF · Up to 2 MB · Wide images look best</span></div>
+            <% if (user.profile.coverImage) { %><label class="cover-remove"><input type="checkbox" name="removeCoverImage"> Remove current cover</label><% } %>
+          </div>
+        </div>
+      </div>
+
       <!-- ── Basic Info ── -->
       <div class="settings-card">
         <div class="settings-card-head">
@@ -58,8 +93,8 @@
                 <label class="btn btn-secondary btn-sm" for="avatarFile" style="cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;">
                   <i class="fas fa-upload"></i> Upload Photo
                 </label>
-                <input type="file" id="avatarFile" name="avatar" accept="image/*" style="display:none;">
-                <p class="form-hint">JPG, PNG or WEBP &middot; Max 5 MB. Square images work best.</p>
+                <input type="file" id="avatarFile" name="avatar" accept="image/jpeg,image/png,image/webp,image/gif" style="display:none;">
+                <p class="form-hint">JPG, PNG or WEBP &middot; Max 2 MB. Square images work best.</p>
               </div>
             </div>
           </div>

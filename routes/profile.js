@@ -69,7 +69,7 @@ router.get('/:username', async (req, res) => {
     const isOwner = req.session.user && req.session.user.id === profileUser._id.toString();
 
     res.render('profile/view', {
-      title: `${profileUser.profile.fullName || profileUser.username} — POWtfolio`,
+      title: `${profileUser.profile.fullName || profileUser.username} | POWtfolio`,
       profileUser,
       pows,
       badges,

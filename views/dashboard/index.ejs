@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard — POWtfolio</title>
+  <title>Dashboard | POWtfolio</title>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -30,7 +31,7 @@
     <div class="share-banner">
       <div class="share-banner-info">
         <h3><i class="fas fa-share-nodes"></i> Your shareable profile link</h3>
-        <p>Share this link anywhere — your bio, LinkedIn, email signature, DMs</p>
+        <p>Share this link anywhere | your bio, LinkedIn, email signature, DMs</p>
       </div>
       <div class="share-pill">
         <span id="profileUrl"><%= process.env.BASE_URL || 'http://localhost:3000' %>/<%= user.username %></span>
@@ -131,9 +132,9 @@
                     <i class="fas fa-pen"></i>
                   </a>
                   <form method="POST" action="/pow/delete/<%= pow._id %>" style="display:inline;">
-                    <button type="submit" class="btn-icon danger" title="Delete"
+                    <button type="submit" class="btn-icon remove-work-btn" title="Remove proof of work"
                       data-confirm="Delete '<%= pow.title %>'? This cannot be undone.">
-                      <i class="fas fa-trash"></i>
+                      <span>Remove</span>
                     </button>
                   </form>
                 </div>

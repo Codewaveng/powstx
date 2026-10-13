@@ -26,6 +26,9 @@ const userSchema = new mongoose.Schema({
     fullName:  { type: String, default: '' },
     bio:       { type: String, default: '' },
     avatar:    { type: String, default: '' },
+    coverImage:{ type: String, default: '' },
+    theme:     { type: String, default: 'studio', enum: ['studio', 'editorial', 'ocean', 'garden', 'midnight', 'canvas'] },
+      accentHex: { type: String, default: '#3978d4' },
     location:  { type: String, default: '' },
     website:   { type: String, default: '' },
     // Social links

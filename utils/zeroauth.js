@@ -79,7 +79,7 @@ async function fetchWalletReputation(stacksAddress) {
   const apiKey = process.env.ZEROAUTH_API_KEY;
   const authHeader = apiKey ? { 'Authorization': `Bearer ${apiKey}` } : {};
 
-  // Primary: ZeroAuth REST API — returns full user profile + activity stats
+  // Primary: ZeroAuth REST API, which returns the full user profile and activity stats
   try {
     const res = await httpsRequest('GET', 'zeroauthoritydao.com',
       `/api/users/${encodeURIComponent(stacksAddress)}?includeStats=true`,

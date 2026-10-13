@@ -10,21 +10,12 @@ const { fetchWalletReputation } = require('../utils/zeroauth');
 const UPLOAD_DIR = process.env.VERCEL ? '/tmp/uploads' : path.join(__dirname, '..', 'public', 'uploads');
 
 const avatarUpload = multer({
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => {
-      const fs = require('fs');
-      if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-      cb(null, UPLOAD_DIR);
-    },
-    filename: (req, file, cb) => {
-      const ext = path.extname(file.originalname).toLowerCase();
-      cb(null, `avatar-${req.session.user.id}-${Date.now()}${ext}`);
-    }
-  }),
-  limits: { fileSize: 5 * 1024 * 1024 },
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 2 * 1024 * 1024, files: 2 },
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) return cb(null, true);
-    cb(new Error('Only image files are allowed for avatars'));
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (allowed.includes(file.mimetype)) return cb(null, true);
+    cb(new Error('Use a JPG, PNG, WEBP, or GIF image.'));
   }
 });
 
@@ -102,13 +93,16 @@ router.get('/fetch-dao', requireAuth, async (req, res) => {
 });
 
 // Update profile
-router.post('/profile', requireAuth, avatarUpload.single('avatar'), async (req, res) => {
+router.post('/profile', requireAuth, avatarUpload.fields([
+  { name: 'avatar', maxCount: 1 },
+  { name: 'coverImage', maxCount: 1 }
+]), async (req, res) => {
   try {
     const {
       fullName, bio, location, website,
       github, twitter, linkedin, instagram, facebook, youtube,
       tiktok, discord, telegram, behance, dribbble, farcaster,
-      skillCategory, skills, accentColor,
+      skillCategory, skills, accentColor, theme, accentHex, removeCoverImage,
       linkTitle, linkUrl, linkIcon,
       daoAddress
     } = req.body;
@@ -135,6 +129,9 @@ router.post('/profile', requireAuth, avatarUpload.single('avatar'), async (req, 
     user.skillCategory = skillCategory || 'other';
     user.skills = skills ? skills.split(',').map(s => s.trim()).filter(Boolean) : [];
     user.accentColor = accentColor || 'purple';
+    const allowedThemes = ['studio', 'editorial', 'ocean', 'garden', 'midnight', 'canvas'];
+    user.profile.theme = allowedThemes.includes(theme) ? theme : 'studio';
+    user.profile.accentHex = /^#[0-9a-fA-F]{6}$/.test(accentHex || '') ? accentHex : '#ee795d';
 
     // Build custom links from parallel arrays
     const titles = linkTitle ? (Array.isArray(linkTitle) ? linkTitle : [linkTitle]) : [];
@@ -146,11 +143,15 @@ router.post('/profile', requireAuth, avatarUpload.single('avatar'), async (req, 
       .filter(l => l.title && l.url);
 
     // Avatar upload
-    if (req.file) {
-      user.profile.avatar = `/uploads/${req.file.filename}`;
+    const avatar = req.files?.avatar?.[0];
+    const coverImage = req.files?.coverImage?.[0];
+    if (avatar) {
+      user.profile.avatar = `data:${avatar.mimetype};base64,${avatar.buffer.toString('base64')}`;
     }
+    if (coverImage) user.profile.coverImage = `data:${coverImage.mimetype};base64,${coverImage.buffer.toString('base64')}`;
+    else if (removeCoverImage === 'on') user.profile.coverImage = '';
 
-    // Only update address — score/badges are set by /fetch-dao
+    // Only update address | score/badges are set by /fetch-dao
     if (daoAddress !== undefined) {
       user.zeroAuthDAO.address = daoAddress || '';
     }

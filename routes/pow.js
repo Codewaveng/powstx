@@ -26,8 +26,8 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({
-  storage,
-  limits: { fileSize: 10 * 1024 * 1024 },
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 8 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
     if (allowed.includes(file.mimetype)) return cb(null, true);
@@ -43,6 +43,14 @@ function runUpload(req, res) {
       else resolve();
     });
   });
+}
+
+function saveProofFile(file, req) {
+  if (!file) return '';
+  const filename = `pow-${req.session.user.id}-${Date.now()}${path.extname(file.originalname).toLowerCase()}`;
+  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  fs.writeFileSync(path.join(UPLOAD_DIR, filename), file.buffer);
+  return `/uploads/${filename}`;
 }
 
 const powTypeIcons = {
@@ -89,8 +97,8 @@ router.post('/add', requireAuth, async (req, res) => {
       description,
       type,
       proofLink:     proofLink || '',
-      fileUrl:       req.files?.proofFile?.[0]     ? `/uploads/${req.files.proofFile[0].filename}`     : '',
-      featuredImage: req.files?.featuredImage?.[0] ? `/uploads/${req.files.featuredImage[0].filename}` : '',
+      fileUrl:       saveProofFile(req.files?.proofFile?.[0], req),
+      featuredImage: req.files?.featuredImage?.[0] ? `data:${req.files.featuredImage[0].mimetype};base64,${req.files.featuredImage[0].buffer.toString('base64')}` : '',
       skills:        skills ? skills.split(',').map(s => s.trim()).filter(Boolean) : [],
       startDate:     new Date(startDate),
       endDate:       endDate ? new Date(endDate) : null,
@@ -143,8 +151,8 @@ router.post('/edit/:id', requireAuth, async (req, res) => {
     pow.description = description;
     pow.type        = type;
     pow.proofLink   = proofLink || '';
-    if (req.files?.proofFile?.[0])     pow.fileUrl       = `/uploads/${req.files.proofFile[0].filename}`;
-    if (req.files?.featuredImage?.[0]) pow.featuredImage = `/uploads/${req.files.featuredImage[0].filename}`;
+    if (req.files?.proofFile?.[0])     pow.fileUrl       = saveProofFile(req.files.proofFile[0], req);
+    if (req.files?.featuredImage?.[0]) pow.featuredImage = `data:${req.files.featuredImage[0].mimetype};base64,${req.files.featuredImage[0].buffer.toString('base64')}`;
     pow.skills    = skills ? skills.split(',').map(s => s.trim()).filter(Boolean) : [];
     pow.startDate = new Date(startDate);
     pow.endDate   = endDate ? new Date(endDate) : null;

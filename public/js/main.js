@@ -1,4 +1,4 @@
-// POWtfolio v2 — Main JS
+// POWtfolio v2 | Main JS
 
 // ── Toast notification system ──────────────────────────
 function showToast(msg, type = 'info', duration = 4000) {
@@ -161,6 +161,33 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── Featured image drop zone ───────────────────────
+  const coverImageFile = document.getElementById('coverImageFile');
+  const coverPreview = document.getElementById('coverPreview');
+  const coverPreviewEmpty = document.getElementById('coverPreviewEmpty');
+  if (coverImageFile && coverPreview) {
+    coverImageFile.addEventListener('change', () => {
+      const file = coverImageFile.files[0];
+      if (!file) return;
+      coverPreview.src = URL.createObjectURL(file);
+      coverPreview.style.display = 'block';
+      if (coverPreviewEmpty) coverPreviewEmpty.style.display = 'none';
+      const removeCover = document.querySelector('input[name="removeCoverImage"]');
+      if (removeCover) removeCover.checked = false;
+    });
+  }
+
+  // Keep the preset accent swatches and free color picker in sync.
+  const accentPicker = document.getElementById('accentHex');
+  const accentPresets = {
+    purple: '#8b6acb', blue: '#4f87bd', green: '#5f936e',
+    rose: '#dc7185', orange: '#ee795d', dark: '#35413d'
+  };
+  document.querySelectorAll('input[name="accentColor"]').forEach(input => {
+    input.addEventListener('change', () => {
+      if (accentPicker && accentPresets[input.value]) accentPicker.value = accentPresets[input.value];
+    });
+  });
+
   const featImgDrop = document.getElementById('featuredImgDrop');
   const featImgFile = document.getElementById('featuredImageFile');
   const featImgPreview = document.getElementById('featuredImgPreview');
